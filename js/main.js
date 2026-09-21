@@ -125,7 +125,10 @@ function playDemo(button, key) {
   const panel = $('#demo-panel');
   const caption = $('#help-caption');
   const cells = $$('#help-grid .cell[data-i]');
-  button.after(panel);
+  // The eye and ear buttons live in a flex row; dropping the panel straight
+  // after one would make it a flex sibling — beside the buttons, stretching
+  // them. Hang it off the row instead, so it always lands underneath.
+  (button.closest('.help-demo') || button).after(panel);
   panel.hidden = false;
   $('#help-grid').hidden = !spec.grid;
   button.classList.add('playing');

@@ -355,7 +355,7 @@ svg { display: block; fill: currentColor; }
 .tutorial-btn:active { transform: scale(.985); box-shadow: none; }
 .tutorial-btn.playing { background: var(--teal); color: var(--on-teal); border-color: var(--teal); }
 .demo-panel { margin: 4% 0 6%; }
-.help-demo { display: flex; gap: 4%; justify-content: center; padding: 2% 0 0; }
+.help-demo { display: flex; gap: 4%; justify-content: center; align-items: center; padding: 2% 0 0; }
 .demo-btn {
   width: 27%; max-width: 150px; aspect-ratio: 2.1 / 1;
   border-radius: 6px; background: var(--surface); box-shadow: var(--shadow);
@@ -363,6 +363,7 @@ svg { display: block; fill: currentColor; }
   transition: transform 110ms ease-out;
 }
 .demo-btn:active { transform: scale(.95); }
+.demo-btn.playing { background: var(--teal); color: var(--on-teal); }
 .demo-btn svg { height: 78%; width: auto; max-width: 56%; }
 .help-demo-grid {
   width: 46%; max-width: 250px; aspect-ratio: 1; margin: 0 auto;
@@ -372,7 +373,11 @@ svg { display: block; fill: currentColor; }
 .help-demo-grid .cell:nth-child(3) { border-top-right-radius: 8px; }
 .help-demo-grid .cell:nth-child(7) { border-bottom-left-radius: 8px; }
 .help-demo-grid .cell:nth-child(9) { border-bottom-right-radius: 8px; }
-.help-demo-caption { text-align: center; min-height: 1.4em; margin: 3% 0 0; font-size: clamp(13px, 3.8vw, 17px); }
+.help-body .help-demo-caption {
+  text-align: center; margin: 3% auto 0; max-width: 34ch;
+  font-size: clamp(13px, 3.8vw, 17px); line-height: 1.45;
+  min-height: 2.9em;              /* two lines, so a longer caption shifts nothing */
+}
 .help-h {
   text-align: center; font-weight: 300; color: var(--text);
   font-size: clamp(22px, 7vw, 34px); letter-spacing: .06em;
