@@ -253,5 +253,15 @@ audio.load();
 audio.tapEnabled = store.settings.tapSounds;
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('sw.js').catch(() => { /* offline cache is optional */ });
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    // When a new worker replaces one that was already running this page, the
+    // page is holding the old code — take the update straight away.
+    reg.addEventListener('updatefound', () => {
+      const fresh = reg.installing;
+      if (!fresh) return;
+      fresh.addEventListener('statechange', () => {
+        if (fresh.state === 'activated' && navigator.serviceWorker.controller) location.reload();
+      });
+    });
+  }).catch(() => { /* offline cache is optional */ });
 }

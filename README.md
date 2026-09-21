@@ -37,6 +37,10 @@ A few things worth knowing once it is up:
 - The first press of play unlocks the sound; browsers hold the audio context
   shut until a real gesture.
 - `Ctrl-C` stops the server.
+- The app installs a service worker so it plays offline. Code is fetched from
+  the network first and only falls back to the cache, so a `git pull` always
+  shows up on the next reload; only the sounds are served from the cache
+  permanently.
 
 To play it on the phone it was cloned from, the server already listens on every
 interface: `ipconfig getifaddr en0` gives your Mac's address on the network, and
