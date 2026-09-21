@@ -192,9 +192,11 @@ board width, so those ratios hold on a phone, a tablet and a desktop alike.
   to fill it. The CUSTOMER SUPPORT link at the top is gone too — this clone has
   no inbox to send you to.
 - **What the tutorial buttons do.** The original's DUAL 1-BACK TUTORIAL and
-  DUAL 2-BACK TUTORIAL were never opened on camera. Here they walk a short
-  scripted sequence at the game's own three-second tempo, calling out each
-  match as it lands.
+  DUAL 2-BACK TUTORIAL were never opened on camera. Here they walk a freshly
+  generated sequence at the game's own three-second tempo, calling out each
+  match as it lands. The second one is a level picker: its label opens a menu
+  of Dual 1- through 5-Back and the button on its right runs the one selected,
+  in the same panel.
 - **The paywall.** The original sells cloud saving and ad removal from the
   results and settings screens. This clone is free and has nothing to sell, so
   those are gone entirely: no account, no cloud, no ads, no purchase surface.

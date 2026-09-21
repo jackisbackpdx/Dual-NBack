@@ -123,7 +123,19 @@
       <h2 class="help-h">DUAL 2-BACK</h2>
       <p>If you haven't played Dual N-Back before, you will find that even Dual 2-Back is quite difficult. Don't worry, you'll get better soon and it is actually playing at the limit of your ability when you increase your fluid intelligence.</p>
       <p>In Dual 2-Back (i.e. N = 2), you have a match if the flashing square's position is the same as the square's position shown two square's earlier. Similarly, you have a match if the letter sound is the same as the letter sound presented two letter sounds earlier.</p>
-      <button class="tutorial-btn" data-demo="tutorial" data-n="2">DUAL 2-BACK TUTORIAL</button>
+      <div class="tutorial-row">
+        <div class="select-wrap">
+          <select id="tutorial-n" aria-label="Tutorial level">
+            <option value="1">DUAL 1-BACK TUTORIAL</option>
+            <option value="2" selected>DUAL 2-BACK TUTORIAL</option>
+            <option value="3">DUAL 3-BACK TUTORIAL</option>
+            <option value="4">DUAL 4-BACK TUTORIAL</option>
+            <option value="5">DUAL 5-BACK TUTORIAL</option>
+          </select>
+        </div>
+        <button class="tutorial-play" id="tutorial-play" data-demo="tutorial"
+                aria-label="Play Dual 2-Back tutorial"></button>
+      </div>
 
       <h2 class="help-h">HITTING TARGETS</h2>
       <p>You should press the visual button (eye) or the audio button (ear) when you think the flashing square's position or letter sound match respectively.</p>

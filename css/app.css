@@ -345,6 +345,9 @@ svg { display: block; fill: currentColor; }
 
 /* ── help ────────────────────────────────────────────────── */
 .help-body { overflow-y: auto; padding: 0 5% calc(8% + var(--safe-b)); -webkit-overflow-scrolling: touch; }
+/* A scrolling column: nothing in it should be squeezed to fit. Without this a
+   child with `overflow: hidden` loses its automatic minimum size and collapses. */
+.help-body > * { flex: 0 0 auto; }
 .tutorial-btn {
   display: block; width: 100%; margin: 4% 0 5%; padding: 3.5% 4%;
   background: var(--surface); border: 1px solid var(--card-line); border-radius: 6px;
@@ -354,6 +357,34 @@ svg { display: block; fill: currentColor; }
 }
 .tutorial-btn:active { transform: scale(.985); box-shadow: none; }
 .tutorial-btn.playing { background: var(--teal); color: var(--on-teal); border-color: var(--teal); }
+
+/* The level picker and its play button read as one control: the label opens
+   the menu, the button on the right runs whatever is selected. */
+.tutorial-row {
+  display: flex; align-items: stretch; margin: 4% 0 5%;
+  background: var(--surface); border: 1px solid var(--card-line); border-radius: 6px;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.tutorial-row .select-wrap { flex: 1; min-width: 0; }
+.tutorial-row .select-trigger {
+  background: transparent; color: var(--teal);
+  justify-content: center; gap: 0; padding: 3.5% 4%;
+  font-size: clamp(13px, 4vw, 17px); letter-spacing: .1em;
+}
+.tutorial-row .select-trigger::before { content: ''; flex: 0 0 auto; width: 19px; }
+.tutorial-row .select-value { flex: 0 1 auto; text-align: center; }
+.tutorial-row .select-chevron { color: var(--text-dim); margin-left: 8px; }
+.tutorial-row .select-trigger:hover { filter: none; background: var(--menu-hover); }
+.tutorial-play {
+  flex: 0 0 auto; width: 19%; max-width: 78px;
+  border-left: 1px solid var(--card-line); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.tutorial-play svg { width: 40%; max-width: 24px; height: auto; }
+.tutorial-play:hover { background: var(--menu-hover); }
+.tutorial-play.playing { background: var(--teal); color: var(--on-teal); }
+.tutorial-play.playing:hover { background: var(--teal); filter: brightness(1.05); }
 .demo-panel { margin: 4% 0 6%; }
 .help-demo { display: flex; gap: 4%; justify-content: center; align-items: center; padding: 2% 0 0; }
 .demo-btn {

@@ -1,6 +1,9 @@
 /* Wiring: icons, theme, navigation and the round loop. */
 
-import { DAILY_GOAL, TIMING, scoreRound, nextN } from './engine.js';
+import {
+  DAILY_GOAL, TIMING, VISUAL_POSITIONS, LETTER_COUNT,
+  makeSequence, scoreRound, nextN,
+} from './engine.js';
 import { audio } from './audio.js';
 import { store } from './store.js';
 import { icons, paint } from './icons.js';
@@ -29,6 +32,7 @@ function paintIcons() {
   paint($('#demo-visual'), 'eye');
   paint($('#demo-audio'), 'ear');
   paintScoreIcons();
+  paintPlayIcon();
   $('#share-score .ic').innerHTML = icons.share();
   $('#tap-sounds .ic').innerHTML = icons.volume();
   const drawerIcons = ['grid', 'chart', 'question', 'gear'];
@@ -81,28 +85,34 @@ async function playRound() {
 
 const DEMOS = {
   eye: {
-    n: 2, step: 1100, grid: true, sound: false,
+    key: 'eye', n: 2, step: 1100, grid: true, sound: false,
     positions: [1, 6, 1],
     lead: 'N = 2 — watch the squares.',
   },
   ear: {
-    n: 2, step: 1100, grid: false, sound: true,
+    key: 'ear', n: 2, step: 1100, grid: false, sound: true,
     letters: [0, 3, 0],
     lead: 'N = 2 — listen to the letters.',
   },
-  1: {
-    n: 1, step: TIMING.trial, grid: true, sound: true,
-    positions: [1, 1, 6, 2, 2, 4],
-    letters:   [0, 2, 2, 5, 5, 5],
-    lead: 'Dual 1-Back — compare each square and sound with the one just before it.',
-  },
-  2: {
-    n: 2, step: TIMING.trial, grid: true, sound: true,
-    positions: [0, 5, 0, 3, 7, 3, 7],
-    letters:   [1, 4, 6, 4, 2, 2, 0],
-    lead: 'Dual 2-Back — compare each square and sound with the one two back.',
-  },
 };
+
+/* A tutorial is generated per press, so it is a fresh sequence every time,
+   at the game's own three-second tempo. Two matches per sense in the few
+   trials that can hold one. */
+function tutorialSpec(n) {
+  const trials = n + 3;
+  return {
+    key: `tutorial-${n}`, n, step: TIMING.trial, grid: true, sound: true,
+    positions: makeSequence(n, trials, VISUAL_POSITIONS, 2),
+    letters: makeSequence(n, trials, LETTER_COUNT, 2),
+    lead: `Dual ${n}-Back — compare each square and sound with the one ` +
+          `${n === 1 ? 'just before it' : `${n} back`}.`,
+  };
+}
+
+const specFor = (trigger) => (trigger.dataset.demo === 'tutorial'
+  ? tutorialSpec(Number(trigger.dataset.n || $('#tutorial-n').value))
+  : DEMOS[trigger.dataset.demo]);
 
 let demo = null;
 
@@ -110,25 +120,36 @@ function stopDemo() {
   if (!demo) return;
   demo.timers.forEach(clearTimeout);
   demo.button.classList.remove('playing');
+  demo = null;
   $$('#help-grid .cell[data-i]').forEach((c) => { c.style.backgroundColor = ''; });
   $('#demo-panel').hidden = true;
   audio.stopAll();
-  demo = null;
+  paintPlayIcon();
 }
 
-function playDemo(button, key) {
-  const spec = DEMOS[key];
-  const restart = !demo || demo.key !== key;
+/** The tutorial's play button doubles as its stop button. */
+function paintPlayIcon() {
+  const btn = $('#tutorial-play');
+  if (!btn) return;
+  const running = demo && demo.button === btn;
+  btn.innerHTML = running ? icons.stop() : icons.play();
+  const n = $('#tutorial-n').value;
+  btn.setAttribute('aria-label', `${running ? 'Stop' : 'Play'} Dual ${n}-Back tutorial`);
+}
+
+function playDemo(button, spec) {
+  if (!spec) return;
+  const restart = !demo || demo.key !== spec.key;
   stopDemo();
   if (!restart) return;
 
   const panel = $('#demo-panel');
   const caption = $('#help-caption');
   const cells = $$('#help-grid .cell[data-i]');
-  // The eye and ear buttons live in a flex row; dropping the panel straight
-  // after one would make it a flex sibling — beside the buttons, stretching
-  // them. Hang it off the row instead, so it always lands underneath.
-  (button.closest('.help-demo') || button).after(panel);
+  // These controls live in flex rows; dropping the panel straight after one
+  // would make it a flex sibling — beside the buttons, stretching them. Hang
+  // it off the row instead, so it always lands underneath.
+  (button.closest('.help-demo, .tutorial-row') || button).after(panel);
   panel.hidden = false;
   $('#help-grid').hidden = !spec.grid;
   button.classList.add('playing');
@@ -136,7 +157,8 @@ function playDemo(button, key) {
 
   const steps = (spec.positions || spec.letters).length;
   const timers = [];
-  demo = { key, button, timers };
+  demo = { key: spec.key, button, timers };
+  paintPlayIcon();
   audio.unlock();
 
   for (let i = 0; i < steps; i++) {
@@ -168,6 +190,7 @@ function playDemo(button, key) {
     caption.textContent = 'That is the whole game — the same thing, for 20+N of them.';
     button.classList.remove('playing');
     demo = null;              // a second press replays it rather than clearing it
+    paintPlayIcon();
   }, steps * spec.step));
 }
 
@@ -231,7 +254,8 @@ function bind() {
 
   // help
   $$('#screen-help [data-demo]').forEach((btn) => btn.addEventListener('click', () =>
-    playDemo(btn, btn.dataset.demo === 'tutorial' ? btn.dataset.n : btn.dataset.demo)));
+    playDemo(btn, specFor(btn))));
+  $('#tutorial-n').addEventListener('change', () => { stopDemo(); paintPlayIcon(); });
   $('#help-menu').addEventListener('click', stopDemo);
 
   // dialog

@@ -72,6 +72,8 @@ export const icons = {
     '<rect x="13.8" y="12" width="3.4" height="9" rx=".6"/>' +
     '<rect x="19.2" y="4" width="3.4" height="17" rx=".6"/>'),
 
+  stop: () => svg('0 0 24 24', '<rect x="6.2" y="6.2" width="11.6" height="11.6" rx="2.2"/>'),
+
   play: () => svg('0 0 24 24',
     '<path d="M8 4.8 19.4 12 8 19.2Z" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linejoin="round" fill="none"/>'),
