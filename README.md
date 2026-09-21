@@ -113,9 +113,13 @@ from that same clock each frame. A round measured in a browser reproduces
 
 ### Scoring and the N ladder
 
-Straight from the app's help text, and verified against the recorded round:
+Straight from the app's help text — which the clone now carries in full, so the
+rules on screen and the rules in `js/engine.js` are the same sentences — and
+verified against the recorded round:
 
 - a round is **20 + N** trials, with **6 matches per sense**;
+- a position and a sound can match on the same trial, and then both buttons
+  are due before the next pair;
 - N goes **up** when each sense collected fewer than three mistakes;
 - N goes **down** when the round cost more than five mistakes in total;
 - otherwise N stays, and it never drops below 1.
@@ -124,6 +128,26 @@ The last test in `test/engine.test.js` replays the recorded round — the 24
 square positions read off the video, the letter groups off the audio, and the
 button presses timed from the same frames — and reproduces the score sheet the
 app showed: eye 6 / 0 / 2, ear 4 / 2 / 5, and N dropping from 4 to 3.
+
+### Statistics
+
+The teal average-N chart is the original's, down to the trend line. Everything
+under it is this clone's, and answers what the original leaves out: how hard
+you are playing, how consistently, and which sense is costing you the level.
+
+- Four tiles — best N, the 7-day average N, the share of matches you caught,
+  and the day streak. Single numbers stay numbers; they are not charts.
+- **ROUNDS A DAY**, bars against the twenty the help text recommends, so a
+  light week is visible at a glance.
+- **MATCHES CAUGHT**, split eye against ear, each with its own icon so the two
+  never rest on colour alone, plus how many presses a round land on nothing.
+- A few sentences that read the numbers back: which way the trend is going,
+  which sense is behind, and how the week compares with 20 rounds 4–5 days.
+
+The chart card is a shade darker than the app's teal (`#0d8375`), which takes
+white axis labels from 2.9:1 to 4.6:1 against it. The trend line is dashed as
+well as red, so it still reads as the second series without depending on
+red-against-teal.
 
 ### The end-of-round sequence
 
@@ -158,12 +182,15 @@ board width, so those ratios hold on a phone, a tablet and a desktop alike.
 - **The two buttons at the top of the help screen.** The recording never shows
   what they do, so here they play a short worked example — a 2-back position
   match, and a 2-back sound match.
-- **The `DAILY FIRST N` options.** The setting exists in the original with
-  `ALWAYS 1` selected; the other two choices here (carry the last level over,
-  or start from the last day's average) are a reasonable reading of the name.
-- **The rest of the help screen.** The screenshot's scrollbar shows the original
-  has more text below what is visible; the help screen here carries exactly the
-  part that can be read, and invents nothing to fill the gap.
+- **The help screen's second tab.** The original splits help into THE SCIENCE
+  and FAQ. Every word of THE SCIENCE is here, transcribed from a recording of
+  it; the FAQ tab was never shown, so there is no tab bar and nothing invented
+  to fill it. The CUSTOMER SUPPORT link at the top is gone too — this clone has
+  no inbox to send you to.
+- **What the tutorial buttons do.** The original's DUAL 1-BACK TUTORIAL and
+  DUAL 2-BACK TUTORIAL were never opened on camera. Here they walk a short
+  scripted sequence at the game's own three-second tempo, calling out each
+  match as it lands.
 - **The paywall.** The original sells cloud saving and ad removal from the
   results and settings screens. This clone is free and has nothing to sell, so
   those are gone entirely: no account, no cloud, no ads, no purchase surface.
@@ -184,7 +211,7 @@ js/engine.js            round generation, scoring, the N ladder, timings  (pure)
 js/game.js              the round: audio-clock scheduling and the flash
 js/results.js           end-of-round choreography and the score card
 js/audio.js             sound bank + Web Audio scheduler
-js/store.js             settings and per-day history in localStorage
+js/store.js             settings, per-day history and the derived metrics
 js/stats.js             average-N-per-day chart with its trend line
 js/ui.js                screens, drawer, dialog, ring, ripple
 js/select.js            the dropdown used in place of every native select

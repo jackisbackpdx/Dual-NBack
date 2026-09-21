@@ -95,7 +95,11 @@
       <span class="bar-btn" aria-hidden="true"></span>
     </header>
     <div class="body stats-body">
+      <div class="stat-tiles" id="stat-tiles"></div>
       <div class="chart-card" id="chart-card"></div>
+      <div class="card panel" id="rounds-panel"></div>
+      <div class="card panel" id="senses-panel"></div>
+      <ul class="insights" id="insights"></ul>
       <p class="stats-empty" id="stats-empty">Play a round to start your chart.</p>
     </div>
   </section>
@@ -108,19 +112,50 @@
       <span class="bar-btn" aria-hidden="true"></span>
     </header>
     <div class="body help-body">
+      <p>Dual N-Back exercise is a scientifically proven way of improving your fluid intelligence. Fluid intelligence refers to the ability to reason and to solve new problems independently of previously acquired knowledge.</p>
+      <p>As the first part of the game's name <i>Dual</i> suggests, the idea is to keep track of two individual things while playing: the flashing square's position and the letter sound. The last part of the name <i>N-Back</i> suggests how many square's positions and letter sounds you should keep track of. For example if N = 1 (i.e. Dual 1-Back), you should keep track of the previous square's position and letter sound. If N = 2 (i.e. Dual 2-Back), you should keep track of two previous square's positions and letter sounds and so on.</p>
+
+      <h2 class="help-h">DUAL 1-BACK</h2>
+      <p>The game presents you a flashing square and a letter sound every 3 seconds. In Dual 1-back (i.e. N = 1), you have a match if the square's position is the same as the previous square's position. Similarly, you have a match if the letter sound is the same as the previous letter sound.</p>
+      <button class="tutorial-btn" data-demo="tutorial" data-n="1">DUAL 1-BACK TUTORIAL</button>
+      <p>Note that square positions and letter sounds are two individual things to keep track of. Flashing squares and letters do not match with each other in any way.</p>
+
+      <h2 class="help-h">DUAL 2-BACK</h2>
+      <p>If you haven't played Dual N-Back before, you will find that even Dual 2-Back is quite difficult. Don't worry, you'll get better soon and it is actually playing at the limit of your ability when you increase your fluid intelligence.</p>
+      <p>In Dual 2-Back (i.e. N = 2), you have a match if the flashing square's position is the same as the square's position shown two square's earlier. Similarly, you have a match if the letter sound is the same as the letter sound presented two letter sounds earlier.</p>
+      <button class="tutorial-btn" data-demo="tutorial" data-n="2">DUAL 2-BACK TUTORIAL</button>
+
+      <h2 class="help-h">HITTING TARGETS</h2>
+      <p>You should press the visual button (eye) or the audio button (ear) when you think the flashing square's position or letter sound match respectively.</p>
       <div class="help-demo">
-        <button class="demo-btn" id="demo-visual" aria-label="Play a position example"></button>
-        <button class="demo-btn" id="demo-audio" aria-label="Play a sound example"></button>
+        <button class="demo-btn" id="demo-visual" data-demo="eye" aria-label="Play a position example"></button>
+        <button class="demo-btn" id="demo-audio" data-demo="ear" aria-label="Play a sound example"></button>
       </div>
-      <div class="help-demo-grid" id="help-grid" hidden>
-        <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
-        <div class="cell" data-i="3"></div><div class="cell hole"></div><div class="cell" data-i="4"></div>
-        <div class="cell" data-i="5"></div><div class="cell" data-i="6"></div><div class="cell" data-i="7"></div>
+
+      <!-- moved under whichever control started it -->
+      <div class="demo-panel" id="demo-panel" hidden>
+        <div class="help-demo-grid" id="help-grid">
+          <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+          <div class="cell" data-i="3"></div><div class="cell hole"></div><div class="cell" data-i="4"></div>
+          <div class="cell" data-i="5"></div><div class="cell" data-i="6"></div><div class="cell" data-i="7"></div>
+        </div>
+        <p class="help-demo-caption" id="help-caption"></p>
       </div>
-      <p class="help-demo-caption" id="help-caption"></p>
+
       <h2 class="help-h">GAMEPLAY</h2>
       <p>One game round presents 20+N flashing square's positions and letter sounds. So, for example if N = 1 (i.e. Dual 1-Back), you would be presented 21 square's position and letter sound pairs. After each round N is increased by one if there were less than three square's position match mistakes and less than three letter sound match mistakes. On the other hand N is decreased by one if there were more than five mistakes. In all other cases N remains the same for the next round.</p>
-      <p>There can be two kinds of mistakes: 1) not pressing audio (ear) or visual (eye) button when should have and 2) pressing audio or visual button when should not have.</p>
+      <p>There can be two kinds of mistakes: 1) not pressing audio (ear) or visual (eye) button when should have and 2) pressing audio or visual button when shouldn't have.</p>
+      <p>Notice that the square's position and letter sound may match at the same time and when this happens, both buttons should be pressed before next position and letter is presented.</p>
+
+      <h2 class="help-h">DAILY FIRST N</h2>
+      <p>Setting 'DAILY FIRST N' sets N for the first game each day. SAME AS YESTERDAY'S LAST means that N is the same as where you left off in the last game, ALWAYS 1 sets N always to one and ALWAYS MY BEST sets N to the highest N you've ever reached.</p>
+
+      <h2 class="help-h">TIP: DON'T USE MEMORY TRICKS</h2>
+      <p>The point is to remember the sequence of flashing square's positions and letter sounds without using memory tricks because training for better fluid intelligence is not the same as learning memory tricks. N increasing and decreasing between rounds is helping you to achieve this: N changes so often that you won't stay long enough on certain levels just to learn how to get better only on those levels (i.e. learn memory tricks for those levels only).</p>
+
+      <h2 class="help-h">TIP: PROGRESS MATTERS</h2>
+      <p>You will have bad days which may be caused by a number of things (for example lack of sleep or stress). However, be persistent. You <i>will</i> get better over time.</p>
+      <p>Your starting N level is not important. What matters is your improvement in the long run. It is recommended that you play 20 rounds 4-5 days per week for the most optimal benefit.</p>
     </div>
   </section>
 
@@ -140,9 +175,9 @@
         </div>
         <div class="select-wrap">
           <select id="first-n-select">
+            <option value="last">SAME AS YESTERDAY'S LAST</option>
             <option value="always1">ALWAYS 1</option>
-            <option value="last">SAME AS LAST ROUND</option>
-            <option value="average">AVERAGE OF LAST DAY</option>
+            <option value="best">ALWAYS MY BEST</option>
           </select>
         </div>
       </div>

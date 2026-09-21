@@ -1,6 +1,6 @@
 /* Wiring: icons, theme, navigation and the round loop. */
 
-import { DAILY_GOAL, scoreRound, nextN } from './engine.js';
+import { DAILY_GOAL, TIMING, scoreRound, nextN } from './engine.js';
 import { audio } from './audio.js';
 import { store } from './store.js';
 import { icons, paint } from './icons.js';
@@ -66,7 +66,7 @@ async function playRound() {
     const score = scoreRound(result.round, result.responses);
     const next = nextN(n, score);
     lastScore = { score, n };
-    store.finishRound(n, next);
+    store.finishRound(n, next, score);
     await showResults({ score, fromN: n, toN: next, roundsToday: store.roundsToday });
     renderHome();
   } finally {
@@ -74,40 +74,98 @@ async function playRound() {
   }
 }
 
-/* ── help demos ──────────────────────────────────────────── */
-let demoTimer = [];
-function clearDemo() {
-  demoTimer.forEach(clearTimeout);
-  demoTimer = [];
+/* ── help demos ───────────────────────────────────────────
+   One panel, moved under whichever control started it. The two little
+   buttons under HITTING TARGETS are quick illustrations; the tutorials
+   walk a real sequence at the game's own three-second tempo. */
+
+const DEMOS = {
+  eye: {
+    n: 2, step: 1100, grid: true, sound: false,
+    positions: [1, 6, 1],
+    lead: 'N = 2 — watch the squares.',
+  },
+  ear: {
+    n: 2, step: 1100, grid: false, sound: true,
+    letters: [0, 3, 0],
+    lead: 'N = 2 — listen to the letters.',
+  },
+  1: {
+    n: 1, step: TIMING.trial, grid: true, sound: true,
+    positions: [1, 1, 6, 2, 2, 4],
+    letters:   [0, 2, 2, 5, 5, 5],
+    lead: 'Dual 1-Back — compare each square and sound with the one just before it.',
+  },
+  2: {
+    n: 2, step: TIMING.trial, grid: true, sound: true,
+    positions: [0, 5, 0, 3, 7, 3, 7],
+    letters:   [1, 4, 6, 4, 2, 2, 0],
+    lead: 'Dual 2-Back — compare each square and sound with the one two back.',
+  },
+};
+
+let demo = null;
+
+function stopDemo() {
+  if (!demo) return;
+  demo.timers.forEach(clearTimeout);
+  demo.button.classList.remove('playing');
   $$('#help-grid .cell[data-i]').forEach((c) => { c.style.backgroundColor = ''; });
+  $('#demo-panel').hidden = true;
+  audio.stopAll();
+  demo = null;
 }
 
-function demoVisual() {
-  clearDemo();
-  audio.unlock();
-  const grid = $('#help-grid');
-  grid.hidden = false;
-  $('#help-caption').textContent = 'N = 2 — the third square repeats the first, so the eye button is due.';
+function playDemo(button, key) {
+  const spec = DEMOS[key];
+  const restart = !demo || demo.key !== key;
+  stopDemo();
+  if (!restart) return;
+
+  const panel = $('#demo-panel');
+  const caption = $('#help-caption');
   const cells = $$('#help-grid .cell[data-i]');
-  [1, 6, 1].forEach((pos, i) => {
-    demoTimer.push(setTimeout(() => {
-      const c = cells[pos];
-      c.style.transition = 'background-color 260ms linear';
-      c.style.backgroundColor = '#7e4bb0';
-      demoTimer.push(setTimeout(() => { c.style.backgroundColor = ''; }, 700));
-    }, i * 1100));
-  });
-  demoTimer.push(setTimeout(clearDemo, 4200));
-}
+  button.after(panel);
+  panel.hidden = false;
+  $('#help-grid').hidden = !spec.grid;
+  button.classList.add('playing');
+  caption.textContent = spec.lead;
 
-function demoAudio() {
-  clearDemo();
-  $('#help-grid').hidden = true;
-  $('#help-caption').textContent = 'N = 2 — the third sound repeats the first, so the ear button is due.';
-  audio.unlock().then(() => {
-    const t = audio.now + 0.25;
-    [0, 3, 0].forEach((letter, i) => audio.letter(letter, t + i * 1.1));
-  });
+  const steps = (spec.positions || spec.letters).length;
+  const timers = [];
+  demo = { key, button, timers };
+  audio.unlock();
+
+  for (let i = 0; i < steps; i++) {
+    timers.push(setTimeout(() => {
+      const pos = spec.positions && spec.positions[i];
+      const hitPos = spec.positions && i >= spec.n && pos === spec.positions[i - spec.n];
+      const hitSnd = spec.letters && i >= spec.n &&
+        spec.letters[i] === spec.letters[i - spec.n];
+
+      if (spec.grid && pos !== undefined) {
+        const cell = cells[pos];
+        cell.style.transition = 'background-color 260ms linear';
+        cell.style.backgroundColor = '#7e4bb0';
+        timers.push(setTimeout(() => { cell.style.backgroundColor = ''; },
+          Math.min(spec.step - 200, 900)));
+      }
+      if (spec.sound && spec.letters) audio.letter(spec.letters[i]);
+
+      caption.textContent = i < spec.n
+        ? `${i + 1} of ${steps} — nothing to compare it with yet.`
+        : hitPos && hitSnd ? `${i + 1} of ${steps} — both match. Press the eye and the ear.`
+        : hitPos ? `${i + 1} of ${steps} — the position matches. Press the eye.`
+        : hitSnd ? `${i + 1} of ${steps} — the sound matches. Press the ear.`
+        : `${i + 1} of ${steps} — no match. Press nothing.`;
+    }, i * spec.step));
+  }
+
+  timers.push(setTimeout(() => {
+    caption.textContent = 'That is the whole game — the same thing, for 20+N of them.';
+    button.classList.remove('playing');
+    demo = null;              // a second press replays it rather than clearing it
+  }, steps * spec.step));
 }
 
 /* ── settings ────────────────────────────────────────────── */
@@ -125,6 +183,7 @@ function bind() {
   $('#scrim').addEventListener('click', () => drawer.close());
   $$('.drawer-item').forEach((item) => item.addEventListener('click', () => {
     drawer.close();
+    stopDemo();
     const to = item.dataset.goto;
     if (to === 'stats') renderChart();
     if (to === 'settings') renderSettings();
@@ -134,6 +193,7 @@ function bind() {
 
   // home
   $('#home-stats').addEventListener('click', () => { renderChart(); nav.show('stats'); });
+  $('#stats-back').addEventListener('click', stopDemo);
   $('#home-play').addEventListener('click', playRound);
   $('#stats-back').addEventListener('click', () => { renderHome(); nav.show('home'); });
 
@@ -161,14 +221,15 @@ function bind() {
     if (on) { audio.unlock().then(() => audio.tap()); }
   });
   $('#first-n-help').addEventListener('click', () => dialog('DAILY FIRST N',
-    '<p>Which N the first round of a new day starts from.</p>' +
-    '<p><b>ALWAYS 1</b> warms up from the bottom every day.<br>' +
-    '<b>SAME AS LAST ROUND</b> carries yesterday\'s level over.<br>' +
-    '<b>AVERAGE OF LAST DAY</b> starts from the average N of your last day of training.</p>'));
+    "<p>Setting 'DAILY FIRST N' sets N for the first game each day. SAME AS " +
+    "YESTERDAY'S LAST means that N is the same as where you left off in the last " +
+    'game, ALWAYS 1 sets N always to one and ALWAYS MY BEST sets N to the highest ' +
+    "N you've ever reached.</p>"));
 
   // help
-  $('#demo-visual').addEventListener('click', demoVisual);
-  $('#demo-audio').addEventListener('click', demoAudio);
+  $$('#screen-help [data-demo]').forEach((btn) => btn.addEventListener('click', () =>
+    playDemo(btn, btn.dataset.demo === 'tutorial' ? btn.dataset.n : btn.dataset.demo)));
+  $('#help-menu').addEventListener('click', stopDemo);
 
   // dialog
   $('#dialog-ok').addEventListener('click', closeDialog);

@@ -249,25 +249,113 @@ svg { display: block; fill: currentColor; }
 .flat-btn span:last-child { color: var(--text); }
 
 /* ── statistics ──────────────────────────────────────────── */
-.stats-body { justify-content: center; padding: 0 3.5%; }
+.stats-body {
+  position: relative; overflow-y: auto;
+  padding: 4% 3.5% calc(6% + var(--safe-b)); gap: 12px;
+}
+
+/* tiles — single numbers stay numbers, they are not charts */
+.stat-tiles { flex: 0 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile {
+  display: flex; flex-direction: column; gap: 2px; padding: 5% 6%;
+  background: var(--surface); border: 1px solid var(--card-line); border-radius: 8px;
+}
+.tile-value { font-size: clamp(26px, 8vw, 40px); line-height: 1.05; color: var(--teal); }
+.tile-label { font-size: clamp(10px, 3vw, 13px); letter-spacing: .1em; color: var(--text); }
+.tile-sub   { font-size: clamp(10px, 2.9vw, 13px); color: var(--text-dim); }
+
+/* the original's chart card, a shade darker so white labels carry on it */
 .chart-card {
-  flex: 0 0 auto; background: var(--teal); border-radius: 4px;
+  flex: 0 0 auto; background: #0d8375; border-radius: 6px;
   padding: 4% 3% 2%; color: var(--on-teal);
 }
-.chart-card svg { width: 100%; height: auto; }
+.chart-card svg { width: 100%; height: auto; overflow: visible; }
+.chart-card .mark { cursor: pointer; }
 .chart-legend {
-  display: flex; justify-content: space-around; gap: 6%;
-  margin: 3% 6% 0; padding: 2% 4%;
-  background: rgba(0, 0, 0, .18); border-radius: 3px;
-  font-size: clamp(12px, 3.6vw, 18px); letter-spacing: .06em;
+  display: flex; justify-content: center; gap: 10%;
+  margin: 3% 4% 0; padding: 2% 4%;
+  background: rgba(0, 0, 0, .18); border-radius: 4px;
+  font-size: clamp(11px, 3.2vw, 15px); letter-spacing: .06em; color: #fff;
 }
-.chart-legend .avg   { color: #ffffff; }
-.chart-legend .trend { color: #d32f2f; }
+.chart-legend span { display: flex; align-items: center; gap: 7px; }
+.chart-legend .swatch { width: 16px; height: 3px; border-radius: 2px; flex: 0 0 auto; }
+.chart-legend .swatch.solid  { background: #fff; }
+.chart-legend .swatch.dashed { background: repeating-linear-gradient(90deg, #e05a52 0 5px, transparent 5px 8px); }
+
+/* panels */
+.panel { padding: 4.5% 5%; background: var(--surface); }
+.panel-h { margin: 0; font-weight: 300; font-size: clamp(13px, 3.8vw, 17px); letter-spacing: .1em; color: var(--text); }
+.panel-sub, .panel-foot { margin: 4px 0 0; font-size: clamp(11px, 3.1vw, 14px); color: var(--text-dim); }
+.panel-foot { margin-top: 8px; }
+
+/* rounds a day */
+.day-bars { position: relative; height: 96px; margin-top: 12px; }
+.day-slot { position: absolute; bottom: 0; top: 0; }
+.day-bar {
+  position: absolute; bottom: 0; width: 100%;
+  background: var(--teal); opacity: .5;
+  border-radius: 4px 4px 0 0; cursor: pointer;
+  transition: opacity 120ms linear;
+}
+.day-bar.full { opacity: 1; }
+.day-bar:hover { opacity: .85; }
+.day-bar.full:hover { opacity: 1; filter: brightness(1.08); }
+.day-goal {
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 1px dashed var(--text-dim);
+}
+.day-goal span {
+  position: absolute; right: 0; top: -1.1em;
+  font-size: 10px; letter-spacing: .08em; color: var(--text-dim);
+}
+
+/* catch rates */
+.meter-row {
+  display: grid; grid-template-columns: 30px 1fr auto; align-items: center;
+  gap: 4px 10px; margin-top: 12px;
+}
+.meter-ic { color: var(--teal); }
+.meter-ic svg { width: 100%; height: auto; }
+.meter { height: 8px; border-radius: 4px; background: var(--menu-hover); overflow: hidden; }
+.meter-fill { height: 100%; border-radius: 4px; background: var(--teal); }
+.meter-value { font-size: clamp(13px, 3.8vw, 17px); color: var(--text); }
+.meter-sub {
+  grid-column: 2 / 4; font-size: clamp(10px, 2.9vw, 13px); color: var(--text-dim);
+  margin-top: -2px;
+}
+
+/* the sentences */
+.insights { flex: 0 0 auto; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.insights li {
+  padding: 3.5% 4.5%; background: var(--surface); border: 1px solid var(--card-line);
+  border-left: 3px solid var(--teal); border-radius: 6px;
+  font-size: clamp(12px, 3.5vw, 15px); line-height: 1.45; color: var(--text-dim);
+}
+
+.chart-tip {
+  position: absolute; z-index: 5; transform: translate(-50%, -100%);
+}
+.chart-tip.below { transform: translate(-50%, 0); }
+.chart-tip {
+  padding: 6px 10px; border-radius: 7px; pointer-events: none;
+  background: rgba(20, 20, 22, .92); color: #fff; white-space: nowrap;
+  font-size: 12px; letter-spacing: .02em;
+}
 .stats-empty { text-align: center; padding: 8% 10%; color: var(--text-dim); }
 
 /* ── help ────────────────────────────────────────────────── */
 .help-body { overflow-y: auto; padding: 0 5% calc(8% + var(--safe-b)); -webkit-overflow-scrolling: touch; }
-.help-demo { display: flex; gap: 4%; justify-content: center; padding: 5% 0 0; }
+.tutorial-btn {
+  display: block; width: 100%; margin: 4% 0 5%; padding: 3.5% 4%;
+  background: var(--surface); border: 1px solid var(--card-line); border-radius: 6px;
+  box-shadow: var(--shadow); color: var(--teal);
+  font-size: clamp(13px, 4vw, 17px); letter-spacing: .1em; text-align: center;
+  transition: transform 110ms ease-out, box-shadow 110ms ease-out;
+}
+.tutorial-btn:active { transform: scale(.985); box-shadow: none; }
+.tutorial-btn.playing { background: var(--teal); color: var(--on-teal); border-color: var(--teal); }
+.demo-panel { margin: 4% 0 6%; }
+.help-demo { display: flex; gap: 4%; justify-content: center; padding: 2% 0 0; }
 .demo-btn {
   width: 27%; max-width: 150px; aspect-ratio: 2.1 / 1;
   border-radius: 6px; background: var(--surface); box-shadow: var(--shadow);
@@ -277,7 +365,7 @@ svg { display: block; fill: currentColor; }
 .demo-btn:active { transform: scale(.95); }
 .demo-btn svg { height: 78%; width: auto; max-width: 56%; }
 .help-demo-grid {
-  width: 46%; max-width: 250px; aspect-ratio: 1; margin: 5% auto 0;
+  width: 46%; max-width: 250px; aspect-ratio: 1; margin: 0 auto;
   display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: .5%;
 }
 .help-demo-grid .cell:nth-child(1) { border-top-left-radius: 8px; }
