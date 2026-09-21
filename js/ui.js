@@ -124,12 +124,12 @@ export function attachRipple(el) {
 
 /* ── the score legend, shared by the results "?" and help ── */
 export const LEGEND = [
-  ['eye',      'position match spotted'],
-  ['eyeMinus', 'position match missed'],
-  ['eyePlus',  'pressed without a position match'],
-  ['ear',      'sound match spotted'],
-  ['earMinus', 'sound match missed'],
-  ['earPlus',  'pressed without a sound match'],
+  ['eyeScore', "square's position matches answered"],
+  ['eyeMinus', 'visual (eye) button not pressed when should have'],
+  ['eyePlus',  'visual (eye) button pressed when should not have'],
+  ['earScore', 'letter sound matches answered'],
+  ['earMinus', 'audio (ear) button not pressed when should have'],
+  ['earPlus',  'audio (ear) button pressed when should not have'],
 ];
 
 export const legendHtml = () =>

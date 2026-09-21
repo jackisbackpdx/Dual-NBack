@@ -70,7 +70,9 @@ export async function showResults({ score, fromN, toN, roundsToday }) {
   flight.textContent = `N = ${fromN}`;
   flight.style.transition = 'none';
   flight.style.opacity = '0';
-  const centreY = Math.round(window.innerHeight / 2 - flight.offsetHeight / 2);
+  // the app is a centred window on wide screens, so measure the frame
+  const frame = flight.offsetParent || document.documentElement;
+  const centreY = Math.round(frame.clientHeight / 2 - flight.offsetHeight / 2);
   const setAt = (y, scale) => {
     flight.style.setProperty('--t', `translateY(${y}px) scale(${scale})`);
     flight.style.transform = `translateY(${y}px) scale(${scale})`;
@@ -112,8 +114,9 @@ export async function showResults({ score, fromN, toN, roundsToday }) {
 
 export function scoreLegendDialog() {
   dialog('SCORE', legendHtml() +
-    '<p>N goes up when each sense collected fewer than three mistakes, ' +
-    'and down when the round cost more than five in total.</p>');
+    '<p>There can be two kinds of mistakes: 1) not pressing audio (ear) or ' +
+    'visual (eye) button when should have and 2) pressing audio or visual ' +
+    'button when should not have.</p>');
 }
 
 export function shareText(score, n) {

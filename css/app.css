@@ -18,6 +18,13 @@
   --ring-track:  #cac9cb;
   --shadow:      0 1px 3px rgba(0, 0, 0, .10), 0 1px 2px rgba(0, 0, 0, .06);
   --shadow-lift: 0 3px 8px rgba(0, 0, 0, .13), 0 1px 3px rgba(0, 0, 0, .08);
+  --text-strong: #5f5b5d;
+  --menu-bg:     #ffffff;
+  --menu-blur:   rgba(252, 251, 252, .975);
+  --menu-line:   rgba(0, 0, 0, .08);
+  --menu-hover:  rgba(0, 0, 0, .055);
+  --menu-press:  rgba(0, 0, 0, .10);
+  --ambient:     #ece6eb;
   --bar-h:       56px;
   --cell-r:      clamp(5px, 2vw, 26px);
   --safe-t:      env(safe-area-inset-top, 0px);
@@ -36,6 +43,13 @@
   --ring-track:  #3a3a3a;
   --shadow:      0 1px 3px rgba(0, 0, 0, .5);
   --shadow-lift: 0 3px 10px rgba(0, 0, 0, .6);
+  --text-strong: #d6d2d4;
+  --menu-bg:     #2b2b2d;
+  --menu-blur:   rgba(43, 43, 45, .95);
+  --menu-line:   rgba(255, 255, 255, .10);
+  --menu-hover:  rgba(255, 255, 255, .08);
+  --menu-press:  rgba(255, 255, 255, .14);
+  --ambient:     #000000;
   color-scheme:  dark;
 }
 
@@ -98,8 +112,11 @@ svg { display: block; fill: currentColor; }
 }
 
 /* ── progress ring ───────────────────────────────────────── */
-.ring-wrap { flex: 0 0 auto; align-self: center; width: 51.6%; max-width: 330px; aspect-ratio: 1; position: relative; }
-.ring-wrap.small { width: 47%; max-width: 300px; }
+.ring-wrap {
+  flex: 0 0 auto; align-self: center; position: relative; aspect-ratio: 1;
+  width: min(51.6%, 44vh, 330px);
+}
+.ring-wrap.small { width: min(47%, 34vh, 300px); }
 .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .ring-wrap circle { fill: none; stroke-linecap: butt; }
 .ring-track { stroke: var(--ring-track); }
@@ -116,7 +133,7 @@ svg { display: block; fill: currentColor; }
 /* ── play button ─────────────────────────────────────────── */
 .play-btn {
   flex: 0 0 auto; align-self: center;
-  width: 25%; max-width: 150px; aspect-ratio: 1;
+  width: min(25%, 21vh, 150px); aspect-ratio: 1;
   border-radius: 50%; background: var(--surface); box-shadow: var(--shadow);
   color: var(--teal);
   display: flex; align-items: center; justify-content: center;
@@ -126,10 +143,14 @@ svg { display: block; fill: currentColor; }
 .play-btn svg { width: 46%; height: 46%; }
 
 /* ── game grid ───────────────────────────────────────────── */
-.game-body { padding-left: 3.5%; padding-right: 3.5%; }
+.game-body { padding-left: 3.5%; padding-right: 3.5%; container-type: size; }
+/* One board width drives the grid and the answer pair, so the proportions
+   measured off the recording hold at every screen size. */
+.grid, .answers { --board: min(100%, 52vh, 620px); }
+@supports (height: 1cqh) { .grid, .answers { --board: min(100%, 50.4cqh, 620px); } }
 .grid {
   flex: 0 0 auto; align-self: center;
-  width: min(100%, 52vh); aspect-ratio: 1;
+  width: var(--board); aspect-ratio: 1;
   display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
   gap: .32%;
 }
@@ -142,9 +163,11 @@ svg { display: block; fill: currentColor; }
 
 /* ── answer buttons ──────────────────────────────────────── */
 .answers {
-  flex: 0 0 9.3%; min-height: 52px;
+  /* the pair is a touch wider than the grid, exactly as in the original */
+  flex: 0 0 auto; align-self: center;
+  width: calc(var(--board) * 1.0225);
+  height: clamp(46px, calc(var(--board) * .185), 116px);
   display: flex; gap: 3.2%;
-  margin: 0 -1.2%;          /* the pair sits 2.4% in, the grid 3.5% */
 }
 .answer {
   position: relative; overflow: hidden;
@@ -155,6 +178,18 @@ svg { display: block; fill: currentColor; }
   transition: background-color 90ms linear, color 90ms linear;  /* measured */
 }
 .answer svg { height: 96%; width: auto; max-width: 42%; }
+/* Keyboard hint, shown only where there is a keyboard to hint at. */
+.answer[data-key]::after {
+  content: attr(data-key);
+  position: absolute; top: 7%; left: 5%;
+  font-size: clamp(10px, 1.6vh, 14px); line-height: 1; letter-spacing: .08em;
+  color: var(--teal); opacity: 0; transition: opacity 120ms linear;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .answer[data-key]::after { opacity: .4; }
+  .answer.used[data-key]::after { opacity: .55; }
+}
 .answer.used { background: var(--disabled); box-shadow: none; }
 :root[data-theme="dark"] .answer.used { color: #7d7d7d; }
 :root[data-theme="dark"] .ripple { background: rgba(255, 255, 255, .16); }
@@ -177,6 +212,7 @@ svg { display: block; fill: currentColor; }
 }
 
 /* ── results ─────────────────────────────────────────────── */
+.results-body > .spacer:first-child { min-height: 3%; }
 .score-card {
   position: relative; display: flex; padding: 1% 0;
   --sc-ic: min(8.9vw, 52px);              /* one height for all six glyphs */
@@ -199,7 +235,7 @@ svg { display: block; fill: currentColor; }
   display: flex; align-items: center; justify-content: center;
 }
 .results-footer {
-  flex: 0 0 auto; display: flex; align-items: flex-end; justify-content: space-between;
+  flex: 0 0 auto; display: flex; align-items: flex-end; justify-content: center;
   padding: 0 3.5% 3.5%;
 }
 .flat-btn {
@@ -211,11 +247,6 @@ svg { display: block; fill: currentColor; }
 }
 .flat-btn .ic svg { width: clamp(20px, 6vw, 30px); height: auto; }
 .flat-btn span:last-child { color: var(--text); }
-.premium-btn {
-  background: var(--teal); color: var(--on-teal); border-radius: 3px;
-  padding: 10px 16px; font-size: clamp(11px, 3.2vw, 15px);
-  letter-spacing: .08em; line-height: 1.2; text-align: center;
-}
 
 /* ── statistics ──────────────────────────────────────────── */
 .stats-body { justify-content: center; padding: 0 3.5%; }
@@ -270,30 +301,61 @@ svg { display: block; fill: currentColor; }
 
 /* ── settings ────────────────────────────────────────────── */
 .settings-body { justify-content: center; gap: 10px; overflow-y: auto; }
-.premium-card { display: flex; align-items: center; gap: 4%; padding: 3.5% 5%; background: var(--surface); text-align: left; }
-.premium-card .ic { color: var(--teal); flex: 0 0 auto; width: 20%; max-width: 86px; }
-.premium-card .ic svg { width: 100%; height: auto; }
-.premium-text { display: flex; flex-direction: column; gap: 2px; }
-.premium-title { font-size: clamp(20px, 6.2vw, 30px); letter-spacing: .04em; color: var(--text); }
-.premium-sub   { font-size: clamp(12px, 3.6vw, 17px); letter-spacing: .04em; color: var(--text-dim); }
 .setting-card { background: var(--surface); padding: 0; overflow: hidden; }
 .setting-head { position: relative; display: flex; align-items: center; justify-content: center; padding: 3% 12%; }
 .setting-label { font-size: clamp(17px, 5.2vw, 26px); letter-spacing: .06em; color: var(--text); }
 .setting-card .help-dot { top: 50%; transform: translateY(-50%); width: 9%; max-width: 40px; }
-.select-wrap { position: relative; background: var(--teal); }
-.select-wrap::after {
-  content: ""; position: absolute; right: 5%; top: 50%;
-  width: 11px; height: 11px; margin-top: -8px;
-  border-right: 2px solid var(--on-teal); border-bottom: 2px solid var(--on-teal);
-  transform: rotate(45deg); pointer-events: none;
+.select-wrap { position: relative; }
+.select { position: relative; display: block; }
+.native-select {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-.select-wrap select {
-  -webkit-appearance: none; appearance: none;
-  width: 100%; padding: 3.5% 12% 3.5% 4%;
-  background: transparent; border: 0; color: var(--on-teal);
-  font: inherit; font-size: clamp(16px, 5vw, 24px); letter-spacing: .05em;
+.select-trigger {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 3.5% 4%; background: var(--teal); color: var(--on-teal);
+  font-size: clamp(16px, 5vw, 24px); letter-spacing: .05em; text-align: left;
+  transition: filter 120ms linear;
 }
-.select-wrap select option { color: #000; background: #fff; }
+.select-trigger:hover { filter: brightness(1.05); }
+.select-trigger:active { filter: brightness(.94); }
+.select-trigger:focus-visible { outline: 2px solid var(--on-teal); outline-offset: -4px; }
+.select-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-chevron {
+  flex: 0 0 auto; width: 11px; height: 11px; margin: -5px 4px 0 0;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); transition: transform 200ms cubic-bezier(.32, .72, 0, 1);
+}
+.select-trigger[aria-expanded="true"] .select-chevron { transform: rotate(225deg) translate(-3px, -3px); }
+
+/* the menu itself — anchored under its trigger, inside the app frame */
+.select-scrim { position: absolute; inset: 0; z-index: 40; background: transparent; }
+.select-scrim.leaving { pointer-events: none; }
+.select-menu {
+  position: absolute; z-index: 41; overflow-y: auto; overscroll-behavior: contain;
+  min-width: 180px; padding: 5px;
+  background: var(--menu-bg); border: .5px solid var(--menu-line); border-radius: 14px;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, .22), 0 2px 8px rgba(0, 0, 0, .10);
+  opacity: 0; transform: scale(.94); transform-origin: top center;
+  transition: opacity 150ms ease-out, transform 190ms cubic-bezier(.32, 1.3, .5, 1);
+}
+@supports (backdrop-filter: blur(20px)) {
+  .select-menu { background: var(--menu-blur); backdrop-filter: blur(24px) saturate(125%); }
+}
+.select-menu.open { opacity: 1; transform: none; }
+.select-menu [role="option"] {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  min-height: 44px; padding: 8px 12px; border-radius: 9px;
+  color: var(--text-strong); font-size: clamp(15px, 4.2vw, 18px); letter-spacing: .03em;
+  text-align: left;
+}
+.select-menu [role="option"] + [role="option"] { margin-top: 1px; }
+.select-menu [role="option"].active { background: var(--menu-hover); }
+.select-menu [role="option"]:active { background: var(--menu-press); }
+.select-opt-label { flex: 1; min-width: 0; }
+.select-opt-check { flex: 0 0 auto; width: 18px; color: var(--teal); opacity: 0; }
+.select-opt-check svg { width: 100%; height: auto; }
+.select-menu [aria-selected="true"] .select-opt-check { opacity: 1; }
 .tap-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 3.5%; background: var(--surface); }
 .tap-card .ic { color: var(--teal); width: 16%; max-width: 62px; }
 .tap-card .ic svg { width: 100%; height: auto; }
@@ -369,6 +431,66 @@ svg { display: block; fill: currentColor; }
   padding: 10px 20px; font-size: 14px; letter-spacing: .04em;
   animation: fadein 160ms linear both;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Other sizes. The design is a phone first; everywhere else it
+   keeps those proportions rather than stretching them.
+   ───────────────────────────────────────────────────────────── */
+
+/* Roomy screens: the app becomes a centred window on an ambient field. */
+@media (min-width: 620px) and (min-height: 560px) {
+  body { display: grid; place-items: center; background: var(--ambient); }
+  #app {
+    position: relative; inset: auto;
+    width: min(94vw, 520px);
+    height: min(94vh, 1000px);
+    border-radius: 26px; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .20), 0 4px 14px rgba(0, 0, 0, .10);
+  }
+  :root { --bar-h: 60px; }
+}
+@media (min-width: 620px) and (min-height: 560px) and (prefers-color-scheme: dark) {
+  #app { box-shadow: 0 30px 70px rgba(0, 0, 0, .6); }
+}
+
+/* Short and wide — a phone on its side. The answer buttons move to the
+   flanks, where the thumbs already are, and the board takes the height. */
+@media (max-height: 540px) and (min-aspect-ratio: 1 / 1) {
+  .game-body {
+    flex-direction: row; align-items: center; justify-content: center;
+    gap: 3%; padding: 2.5% 3%;
+  }
+  .game-body > .spacer { display: none; }
+  .answers { display: contents; }
+  .game-body .answer {
+    flex: 0 1 20%; width: auto; height: min(82%, 280px); border-radius: 12px;
+  }
+  .game-body .answer svg { width: 62%; height: auto; max-width: none; }
+  .game-body #btn-visual { order: -1; }
+  .grid {
+    flex: 0 0 auto; width: auto; height: min(96%, 100%); aspect-ratio: 1;
+  }
+  .bar { height: calc(44px + var(--safe-t)); }
+  .bar-title { font-size: clamp(15px, 3.4vh, 20px); }
+}
+
+/* Not enough height to lay a screen out generously: let it scroll. */
+@media (max-height: 600px) {
+  .results-body, .stats-body, .help-body { overflow-y: auto; }
+  .results-footer { padding-top: 4%; }
+}
+
+/* Pointer devices get a hover state the touch design has no need for. */
+@media (hover: hover) and (pointer: fine) {
+  .answer:not(.used):hover { box-shadow: var(--shadow-lift); }
+  .play-btn:hover { box-shadow: var(--shadow-lift); }
+  .drawer-item:hover, .flat-btn:hover, .help-dot:hover, .tap-card:hover { background: var(--menu-hover); }
+  .bar-btn:hover { background: rgba(255, 255, 255, .12); }
+}
+
+/* Keyboard users should always be able to see where they are. */
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.bar-btn:focus-visible { outline-color: var(--on-teal); outline-offset: -4px; }
 
 @media (prefers-reduced-motion: reduce) {
   .screen, .ring-value, .n-flight.moving, .drawer, .dialog { transition-duration: 1ms !important; }

@@ -4,7 +4,8 @@ import { DAILY_GOAL, scoreRound, nextN } from './engine.js';
 import { audio } from './audio.js';
 import { store } from './store.js';
 import { icons, paint } from './icons.js';
-import { $, $$, nav, drawer, dialog, closeDialog, toast, ring, attachRipple, legendHtml } from './ui.js';
+import { $, $$, nav, drawer, dialog, closeDialog, toast, ring, attachRipple } from './ui.js';
+import { enhanceAllSelects } from './select.js';
 import { runRound } from './game.js';
 import { showResults, paintScoreIcons, scoreLegendDialog, shareText } from './results.js';
 import { renderChart } from './stats.js';
@@ -29,9 +30,7 @@ function paintIcons() {
   paint($('#demo-audio'), 'ear');
   paintScoreIcons();
   $('#share-score .ic').innerHTML = icons.share();
-  $('#settings-premium .ic').innerHTML = icons.cart();
   $('#tap-sounds .ic').innerHTML = icons.volume();
-  $('#help-legend').outerHTML = legendHtml().replace('<ul class="legend-list">', '<ul class="legend-list" id="help-legend">');
   const drawerIcons = ['grid', 'chart', 'question', 'gear'];
   $$('.drawer-item').forEach((el, i) => { el.querySelector('.ic').innerHTML = icons[drawerIcons[i]](); });
   $('#score-card').style.setProperty('--icon-knockout', 'var(--bg)');
@@ -151,13 +150,6 @@ function bind() {
     } catch { /* dismissed */ }
   });
 
-  // "premium" — this clone has nothing to sell, and says so
-  const premium = () => dialog('PREMIUM', '<p>This is an offline clone of the app in the ' +
-    'recording, built for practice. There is nothing to buy and nothing leaves your device — ' +
-    'the cloud saving and ad removal the original sells here do not exist.</p>');
-  $('#results-premium').addEventListener('click', premium);
-  $('#settings-premium').addEventListener('click', premium);
-
   // settings
   $('#first-n-select').addEventListener('change', (e) => store.set('firstN', e.target.value));
   $('#theme-select').addEventListener('change', (e) => { store.set('theme', e.target.value); applyTheme(); });
@@ -191,6 +183,7 @@ function bind() {
 
 paintIcons();
 applyTheme();
+enhanceAllSelects();
 bind();
 renderHome();
 renderSettings();

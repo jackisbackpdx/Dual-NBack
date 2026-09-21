@@ -76,10 +76,9 @@ export const icons = {
     '<path d="M8 4.8 19.4 12 8 19.2Z" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linejoin="round" fill="none"/>'),
 
-  cart: () => svg('0 0 24 24',
-    '<g stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" fill="none">' +
-    '<path d="M1.5 3h3l2.6 11.2h10.3L21 6.2H6"/>' +
-    '<circle cx="9" cy="19" r="1.9"/><circle cx="17.5" cy="19" r="1.9"/></g>'),
+  check: () => svg('0 0 24 24',
+    '<path d="M4.6 12.4 9.6 17.4 19.4 7.2" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" fill="none"/>'),
 
   volume: () => svg('0 0 24 24',
     '<path d="M3 9.5h3.6L11 5.4v13.2L6.6 14.5H3z"/>' +

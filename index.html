@@ -47,8 +47,8 @@
       </div>
       <div class="spacer" style="flex:15.3"></div>
       <div class="answers">
-        <button class="answer" id="btn-visual" aria-label="Position match"></button>
-        <button class="answer" id="btn-audio" aria-label="Sound match"></button>
+        <button class="answer" id="btn-visual" data-key="A" aria-label="Position match (A)"></button>
+        <button class="answer" id="btn-audio" data-key="L" aria-label="Sound match (L)"></button>
       </div>
       <div class="spacer" style="flex:6.3"></div>
     </div>
@@ -83,7 +83,6 @@
       <div class="spacer" style="flex:18"></div>
       <div class="results-footer">
         <button class="flat-btn" id="share-score"><span class="ic"></span><span>SHARE<br>SCORE</span></button>
-        <button class="premium-btn" id="results-premium">BUY<br>PREMIUM</button>
       </div>
     </div>
   </section>
@@ -122,12 +121,6 @@
       <h2 class="help-h">GAMEPLAY</h2>
       <p>One game round presents 20+N flashing square's positions and letter sounds. So, for example if N = 1 (i.e. Dual 1-Back), you would be presented 21 square's position and letter sound pairs. After each round N is increased by one if there were less than three square's position match mistakes and less than three letter sound match mistakes. On the other hand N is decreased by one if there were more than five mistakes. In all other cases N remains the same for the next round.</p>
       <p>There can be two kinds of mistakes: 1) not pressing audio (ear) or visual (eye) button when should have and 2) pressing audio or visual button when should not have.</p>
-      <h2 class="help-h">SCORE</h2>
-      <p>After every round the six counters show how the round went. The eye column counts square's position answers, the ear column counts letter sound answers.</p>
-      <ul class="legend-list" id="help-legend"></ul>
-      <p>A column turns red when that sense collected three or more mistakes, which is what stops N from going up.</p>
-      <h2 class="help-h">TRAINING</h2>
-      <p>The ring counts the rounds you have finished today. Twenty rounds a day is the classic training protocol — that is about twenty minutes. The statistics screen plots your average N per day together with its trend.</p>
     </div>
   </section>
 
@@ -140,13 +133,6 @@
     </header>
     <div class="body settings-body">
       <div class="spacer" style="flex:1"></div>
-      <button class="card premium-card" id="settings-premium">
-        <span class="ic"></span>
-        <span class="premium-text">
-          <span class="premium-title">BUY PREMIUM</span>
-          <span class="premium-sub">CLOUD SAVING AND NO ADS</span>
-        </span>
-      </button>
       <div class="card setting-card">
         <div class="setting-head">
           <span class="setting-label">DAILY FIRST N</span>

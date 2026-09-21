@@ -57,6 +57,17 @@ export function runRound(n) {
     const onQuit   = () => stop(null);
     const onHide   = () => { if (document.hidden) stop(null); };
 
+    // Keyboard: A answers the squares, L the sounds. They are separate keys,
+    // so holding one while striking the other answers both in the same trial.
+    const KEYS = { a: [btnV, 'visual'], l: [btnA, 'audio'] };
+    const onKey = (e) => {
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      const hit = KEYS[e.key.toLowerCase()];
+      if (!hit) return;
+      e.preventDefault();
+      press(hit[1], hit[0]);
+    };
+
     function stop(result) {
       if (finished) return;
       finished = true;
@@ -66,6 +77,7 @@ export function runRound(n) {
       btnA.removeEventListener('pointerdown', onAudio);
       $('#game-back').removeEventListener('click', onQuit);
       document.removeEventListener('visibilitychange', onHide);
+      document.removeEventListener('keydown', onKey);
       cells.forEach((c) => { c.style.backgroundColor = ''; });
       btnV.classList.remove('used');
       btnA.classList.remove('used');
@@ -103,6 +115,7 @@ export function runRound(n) {
     btnA.addEventListener('pointerdown', onAudio);
     $('#game-back').addEventListener('click', onQuit);
     document.addEventListener('visibilitychange', onHide);
+    document.addEventListener('keydown', onKey);
 
     // Fade the game screen in, then give the player the same 1.8 s of quiet
     // the original does before the first square lights up.

@@ -3,7 +3,7 @@ const CACHE = 'dual-n-back-v1';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/main.js', 'js/ui.js', 'js/game.js', 'js/engine.js', 'js/audio.js',
-  'js/store.js', 'js/icons.js', 'js/results.js', 'js/stats.js',
+  'js/store.js', 'js/icons.js', 'js/results.js', 'js/stats.js', 'js/select.js',
   'assets/icon.svg',
   'assets/sounds/tap.wav', 'assets/sounds/level.wav',
   'assets/sounds/letter-0.wav', 'assets/sounds/letter-1.wav', 'assets/sounds/letter-2.wav',

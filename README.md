@@ -25,8 +25,12 @@ and empty. It has to be served.
 
 A few things worth knowing once it is up:
 
-- It is a portrait phone layout. On a desktop browser, narrow the window, or use
-  Chrome's device toolbar (`Cmd-Opt-I`, then `Cmd-Shift-M`).
+- On a desktop or tablet the app draws itself as a centred window rather than
+  stretching, so it keeps the proportions it was measured from. Turn a phone
+  sideways and the answer buttons move to the flanks, either side of the board.
+- With a keyboard, **A** answers the squares and **L** answers the sounds —
+  they are separate keys, so holding one while striking the other answers both
+  in the same trial. The letters are printed faintly on the buttons.
 - Open it in Chrome or Safari rather than an editor's built-in preview pane —
   those run in a webview that can refuse to start the audio, and the voice is
   the point.
@@ -140,9 +144,10 @@ The beats in `js/results.js` are the ones timed off the recording.
 | ring track | `#cac9cb` |
 
 The grid is 93.1 % of the screen wide with 0.3 % gaps and rounded outer
-corners; the answer buttons are 46 % wide and 9.3 % of the body tall; the
-progress ring is 51.6 % of the screen across with a 5.6 % stroke. All of it
-came off the full-resolution frames.
+corners; the answer pair is 2.25 % wider than the grid and 18.5 % of its width
+tall; the progress ring is 51.6 % of the screen across with a 5.6 % stroke. All
+of it came off the full-resolution frames, and every layout is driven from one
+board width, so those ratios hold on a phone, a tablet and a desktop alike.
 
 ---
 
@@ -156,9 +161,17 @@ came off the full-resolution frames.
 - **The `DAILY FIRST N` options.** The setting exists in the original with
   `ALWAYS 1` selected; the other two choices here (carry the last level over,
   or start from the last day's average) are a reasonable reading of the name.
-- **`BUY PREMIUM`.** Kept for the layout, but it sells nothing — it opens a
-  dialog saying so. There is no account, no cloud, no ads; everything lives in
-  `localStorage` on the device.
+- **The rest of the help screen.** The screenshot's scrollbar shows the original
+  has more text below what is visible; the help screen here carries exactly the
+  part that can be read, and invents nothing to fill the gap.
+- **The paywall.** The original sells cloud saving and ad removal from the
+  results and settings screens. This clone is free and has nothing to sell, so
+  those are gone entirely: no account, no cloud, no ads, no purchase surface.
+  Everything lives in `localStorage` on the device.
+- **The dropdowns.** Rendered by `js/select.js` rather than the browser's own
+  `<select>` popup, so the menu is anchored under its trigger and styled to
+  match on every platform. The native element stays in the DOM holding the
+  value, so the page still works if the script does not.
 - **Dark mode.** The original has an appearance setting; the recording is all
   light, so the dark palette is this clone's own.
 
@@ -174,6 +187,7 @@ js/audio.js             sound bank + Web Audio scheduler
 js/store.js             settings and per-day history in localStorage
 js/stats.js             average-N-per-day chart with its trend line
 js/ui.js                screens, drawer, dialog, ring, ripple
+js/select.js            the dropdown used in place of every native select
 js/icons.js             the icon set, drawn inline
 tools/extract_assets.py rebuilds the sound bank from the recording
 test/engine.test.js     unit tests, including the recorded round
