@@ -1,0 +1,11 @@
+{
+  "name": "dual-n-back",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A clone of the Dual N-Back mobile app, voice and timings included.",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.js",
+    "test": "node --test test/*.test.js"
+  }
+}

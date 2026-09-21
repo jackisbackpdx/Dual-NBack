@@ -1,0 +1,12 @@
+{
+  "name": "Dual N-Back",
+  "short_name": "Dual N-Back",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf5f8",
+  "theme_color": "#18a998",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

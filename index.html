@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#18a998">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Dual N-Back</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ HOME ══ -->
+  <section class="screen" id="screen-home">
+    <header class="bar">
+      <button class="bar-btn" id="home-menu" aria-label="Menu"></button>
+      <h1 class="bar-title">DUAL N-BACK</h1>
+      <button class="bar-btn" id="home-stats" aria-label="Statistics"></button>
+    </header>
+    <div class="body home-body">
+      <div class="spacer" style="flex:26.8"></div>
+      <div class="ring-wrap" id="home-ring"></div>
+      <div class="spacer" style="flex:33"></div>
+      <button class="play-btn" id="home-play" aria-label="Start round"></button>
+      <div class="spacer" style="flex:22"></div>
+    </div>
+  </section>
+
+  <!-- ══ GAME ══ -->
+  <section class="screen" id="screen-game">
+    <header class="bar">
+      <button class="bar-btn" id="game-back" aria-label="Quit round"></button>
+      <h1 class="bar-title" id="game-title">N = 1</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body game-body">
+      <div class="spacer" style="flex:18.6"></div>
+      <div class="grid" id="grid">
+        <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+        <div class="cell" data-i="3"></div><div class="cell hole"></div><div class="cell" data-i="4"></div>
+        <div class="cell" data-i="5"></div><div class="cell" data-i="6"></div><div class="cell" data-i="7"></div>
+      </div>
+      <div class="spacer" style="flex:15.3"></div>
+      <div class="answers">
+        <button class="answer" id="btn-visual" aria-label="Position match"></button>
+        <button class="answer" id="btn-audio" aria-label="Sound match"></button>
+      </div>
+      <div class="spacer" style="flex:6.3"></div>
+    </div>
+  </section>
+
+  <!-- ══ RESULTS ══ -->
+  <section class="screen" id="screen-results">
+    <header class="bar">
+      <button class="bar-btn" id="results-back" aria-label="Home"></button>
+      <h1 class="bar-title" id="results-title">N = 1</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body results-body">
+      <div class="spacer" style="flex:5.8"></div>
+      <div class="card score-card" id="score-card">
+        <div class="score-col">
+          <div class="score-row"><span class="ic" id="sc-eye"></span><span class="num" id="sc-v-hit">0</span></div>
+          <div class="score-row"><span class="ic" id="sc-eye-minus"></span><span class="num" id="sc-v-miss">0</span></div>
+          <div class="score-row"><span class="ic" id="sc-eye-plus"></span><span class="num" id="sc-v-false">0</span></div>
+        </div>
+        <div class="score-col">
+          <div class="score-row"><span class="ic" id="sc-ear"></span><span class="num" id="sc-a-hit">0</span></div>
+          <div class="score-row"><span class="ic" id="sc-ear-minus"></span><span class="num" id="sc-a-miss">0</span></div>
+          <div class="score-row"><span class="ic" id="sc-ear-plus"></span><span class="num" id="sc-a-false">0</span></div>
+        </div>
+        <button class="help-dot" id="score-help" aria-label="What do these mean?">?</button>
+      </div>
+      <div class="spacer" style="flex:22"></div>
+      <div class="ring-wrap small" id="results-ring"></div>
+      <div class="spacer" style="flex:16"></div>
+      <button class="play-btn" id="results-play" aria-label="Next round"></button>
+      <div class="spacer" style="flex:18"></div>
+      <div class="results-footer">
+        <button class="flat-btn" id="share-score"><span class="ic"></span><span>SHARE<br>SCORE</span></button>
+        <button class="premium-btn" id="results-premium">BUY<br>PREMIUM</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STATISTICS ══ -->
+  <section class="screen" id="screen-stats">
+    <header class="bar">
+      <button class="bar-btn" id="stats-back" aria-label="Back"></button>
+      <h1 class="bar-title">STATISTICS</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body stats-body">
+      <div class="chart-card" id="chart-card"></div>
+      <p class="stats-empty" id="stats-empty">Play a round to start your chart.</p>
+    </div>
+  </section>
+
+  <!-- ══ HELP ══ -->
+  <section class="screen" id="screen-help">
+    <header class="bar">
+      <button class="bar-btn" id="help-menu" aria-label="Menu"></button>
+      <h1 class="bar-title">HELP</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body help-body">
+      <div class="help-demo">
+        <button class="demo-btn" id="demo-visual" aria-label="Play a position example"></button>
+        <button class="demo-btn" id="demo-audio" aria-label="Play a sound example"></button>
+      </div>
+      <div class="help-demo-grid" id="help-grid" hidden>
+        <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+        <div class="cell" data-i="3"></div><div class="cell hole"></div><div class="cell" data-i="4"></div>
+        <div class="cell" data-i="5"></div><div class="cell" data-i="6"></div><div class="cell" data-i="7"></div>
+      </div>
+      <p class="help-demo-caption" id="help-caption"></p>
+      <h2 class="help-h">GAMEPLAY</h2>
+      <p>One game round presents 20+N flashing square's positions and letter sounds. So, for example if N = 1 (i.e. Dual 1-Back), you would be presented 21 square's position and letter sound pairs. After each round N is increased by one if there were less than three square's position match mistakes and less than three letter sound match mistakes. On the other hand N is decreased by one if there were more than five mistakes. In all other cases N remains the same for the next round.</p>
+      <p>There can be two kinds of mistakes: 1) not pressing audio (ear) or visual (eye) button when should have and 2) pressing audio or visual button when should not have.</p>
+      <h2 class="help-h">SCORE</h2>
+      <p>After every round the six counters show how the round went. The eye column counts square's position answers, the ear column counts letter sound answers.</p>
+      <ul class="legend-list" id="help-legend"></ul>
+      <p>A column turns red when that sense collected three or more mistakes, which is what stops N from going up.</p>
+      <h2 class="help-h">TRAINING</h2>
+      <p>The ring counts the rounds you have finished today. Twenty rounds a day is the classic training protocol — that is about twenty minutes. The statistics screen plots your average N per day together with its trend.</p>
+    </div>
+  </section>
+
+  <!-- ══ SETTINGS ══ -->
+  <section class="screen" id="screen-settings">
+    <header class="bar">
+      <button class="bar-btn" id="settings-menu" aria-label="Menu"></button>
+      <h1 class="bar-title">SETTINGS</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body settings-body">
+      <div class="spacer" style="flex:1"></div>
+      <button class="card premium-card" id="settings-premium">
+        <span class="ic"></span>
+        <span class="premium-text">
+          <span class="premium-title">BUY PREMIUM</span>
+          <span class="premium-sub">CLOUD SAVING AND NO ADS</span>
+        </span>
+      </button>
+      <div class="card setting-card">
+        <div class="setting-head">
+          <span class="setting-label">DAILY FIRST N</span>
+          <button class="help-dot" id="first-n-help" aria-label="About daily first N">?</button>
+        </div>
+        <div class="select-wrap">
+          <select id="first-n-select">
+            <option value="always1">ALWAYS 1</option>
+            <option value="last">SAME AS LAST ROUND</option>
+            <option value="average">AVERAGE OF LAST DAY</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card">
+        <div class="setting-head"><span class="setting-label">APPEARANCE</span></div>
+        <div class="select-wrap">
+          <select id="theme-select">
+            <option value="system">USE DEVICE SETTING</option>
+            <option value="light">LIGHT</option>
+            <option value="dark">DARK</option>
+          </select>
+        </div>
+      </div>
+      <button class="card tap-card" id="tap-sounds">
+        <span class="ic"></span>
+        <span class="tap-label">TAP SOUNDS</span>
+      </button>
+      <div class="spacer" style="flex:2"></div>
+    </div>
+  </section>
+
+  <!-- ══ DRAWER ══ -->
+  <div class="scrim" id="scrim"></div>
+  <nav class="drawer" id="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">DUAL N-BACK</span>
+      <span class="drawer-sub" id="drawer-sub">N = 1</span>
+    </div>
+    <button class="drawer-item" data-goto="home"><span class="ic"></span>TRAIN</button>
+    <button class="drawer-item" data-goto="stats"><span class="ic"></span>STATISTICS</button>
+    <button class="drawer-item" data-goto="help"><span class="ic"></span>HELP</button>
+    <button class="drawer-item" data-goto="settings"><span class="ic"></span>SETTINGS</button>
+  </nav>
+
+  <!-- ══ DIALOG ══ -->
+  <div class="dialog-scrim" id="dialog-scrim">
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true">
+      <h2 class="dialog-title" id="dialog-title"></h2>
+      <div class="dialog-body" id="dialog-body"></div>
+      <button class="dialog-ok" id="dialog-ok">OK</button>
+    </div>
+  </div>
+
+  <!-- flying "N = x" used by the end-of-round transition -->
+  <div class="n-flight" id="n-flight" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
