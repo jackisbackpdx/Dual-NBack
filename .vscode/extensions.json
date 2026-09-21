@@ -1,0 +1,4 @@
+{
+  "//": "Live Preview is handy for the markup, but play the game in Chrome or Safari — the editor's preview pane is a webview and can refuse to start the audio.",
+  "recommendations": ["ms-vscode.live-server"]
+}

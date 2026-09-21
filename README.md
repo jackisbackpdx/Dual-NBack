@@ -4,14 +4,44 @@ A clone of the Dual N-Back mobile app from the supplied screen recording — sam
 voice, same clock, same animations. It runs as a plain web app: no build step,
 no dependencies, no network.
 
+## Running it
+
+In the repo, on `main`:
+
 ```bash
-npm start     # serves on http://localhost:8000
-npm test      # unit tests for the game logic
+git pull
+npm start     # http://localhost:8000
+npm test      # the engine tests
 ```
 
-Open it on a phone (or a phone-sized window) and press play. Add it to the home
-screen and it installs as a standalone app; a service worker keeps it playable
-offline.
+There is no `npm install` step — the app has no dependencies, so an absent
+`node_modules` is not a mistake. `npm start` needs Node 18 or newer (`node -v`;
+`brew install node` on macOS). Without Node, `python3 -m http.server 8000`
+serves it just as well.
+
+**Don't open `index.html` by double-clicking it.** Over `file://` the browser
+blocks ES modules and the `fetch` of the sound files, so the app comes up silent
+and empty. It has to be served.
+
+A few things worth knowing once it is up:
+
+- It is a portrait phone layout. On a desktop browser, narrow the window, or use
+  Chrome's device toolbar (`Cmd-Opt-I`, then `Cmd-Shift-M`).
+- Open it in Chrome or Safari rather than an editor's built-in preview pane —
+  those run in a webview that can refuse to start the audio, and the voice is
+  the point.
+- The first press of play unlocks the sound; browsers hold the audio context
+  shut until a real gesture.
+- `Ctrl-C` stops the server.
+
+To play it on the phone it was cloned from, the server already listens on every
+interface: `ipconfig getifaddr en0` gives your Mac's address on the network, and
+`http://<that>:8000` opens on a phone on the same Wi-Fi. It runs there, but it
+won't *install* — Add to Home Screen and the service worker need HTTPS or
+`localhost`.
+
+In VS Code, `Cmd-Shift-B` runs the server and `Tasks: Run Test Task` runs the
+tests; both are wired up in `.vscode/tasks.json`.
 
 ---
 
