@@ -7,7 +7,7 @@
  * pulled. Bump VERSION on release and old caches are dropped on activate.
  */
 
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = `dual-n-back-${VERSION}`;
 
 const SHELL = [

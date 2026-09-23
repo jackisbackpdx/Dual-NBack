@@ -55,7 +55,7 @@ tests; both are wired up in `.vscode/tasks.json`.
 
 Additions for post-stroke cognitive training, beyond the original app:
 
-- **Sessions** — time-based by default: 15 minutes (10 to 60 in fives), with
+- **Sessions** — time-based by default: 15 minutes (10 to 30 in fives), with
   the clock starting on the first round. The home and results rings fill with
   the time spent, count down what is left, and count the rounds played. A
   round started in time always finishes. Settings can switch to round-based
