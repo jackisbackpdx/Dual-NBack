@@ -7,7 +7,10 @@ const KEY = 'dual-n-back/v1';
 const DEFAULTS = {
   settings: {
     firstN: 'always1', theme: 'system', tapSounds: true,
-    session: 'off',       // rehab mode session length in minutes: 'off' | '15' | '20'
+    goal: 'time',         // what ends a session: 'time' | 'rounds'
+    minutes: '15',        // time-based session length: '10' ... '60', in fives
+    roundGoal: '20',      // round-based session length: '5' | '10' | '15' | '20'
+    rest: 'off',          // rehab rest between rounds: 'off' | '45' (seconds)
     fatigue: 'off',       // fatigue detection: 'off' | 'on'
     hand: 'both',         // answer buttons: 'both' | 'left' | 'right'
   },
@@ -17,7 +20,8 @@ const DEFAULTS = {
   roundsToday: 0,
   history: {},        // 'YYYY-MM-DD' -> see blankDay()
   log: [],            // the most recent rounds, one entry each — see finishRound()
-  rehab: { start: 0, restUntil: 0, reason: '', fatigueAt: 0 },   // epoch ms
+  rehab: { restUntil: 0, reason: '', fatigueAt: 0 },   // epoch ms
+  session: { start: 0, rounds: 0, day: '', announced: false },  // the running session
 };
 
 const LOG_MAX = 1000;
@@ -44,7 +48,17 @@ class Store {
       history: saved.history || {},
       log: saved.log || [],
       rehab: { ...DEFAULTS.rehab, ...(saved.rehab || {}) },
+      session: { ...DEFAULTS.session, ...(saved.session || {}) },
     };
+    // Rehab mode used to carry its own 15 or 20 minute session; session length is
+    // a setting of its own now, and rehab mode is just the rest between rounds.
+    const old = this.state.settings.session;
+    if (old !== undefined) {
+      if (old !== 'off') Object.assign(this.state.settings, { rest: '45', goal: 'time', minutes: old });
+      delete this.state.settings.session;
+      delete this.state.rehab.start;
+      this.save();
+    }
     this.rollDay();
   }
 
@@ -106,6 +120,8 @@ class Store {
 
   get rehab() { return this.state.rehab; }
   setRehab(patch) { Object.assign(this.state.rehab, patch); this.save(); }
+  get session() { return this.state.session; }
+  setSession(patch) { Object.assign(this.state.session, patch); this.save(); }
 
   /** Logged rounds as score sheets, oldest first; `since` is epoch ms. */
   rounds(since = 0) {

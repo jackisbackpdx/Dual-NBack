@@ -79,7 +79,8 @@ const STROKE = 5.6;                       // % of the ring's diameter
 const R = 50 - STROKE / 2;
 const C = 2 * Math.PI * R;
 
-export function ring(el, { value, max, n }) {
+/* `sub` replaces the value/max line; `detail` adds a small line under it. */
+export function ring(el, { value, max, n, sub, detail }) {
   if (!el.dataset.built) {
     el.innerHTML =
       `<svg viewBox="0 0 100 100">
@@ -90,6 +91,7 @@ export function ring(el, { value, max, n }) {
        <div class="ring-label">
          ${n === undefined ? '' : '<span class="ring-n"></span>'}
          <span class="ring-sub"></span>
+         <span class="ring-detail" hidden></span>
        </div>`;
     el.dataset.built = '1';
   }
@@ -99,7 +101,10 @@ export function ring(el, { value, max, n }) {
     $('.ring-value', el).style.strokeDashoffset = (C * (1 - frac)).toFixed(2);
   });
   if (n !== undefined) $('.ring-n', el).textContent = `N = ${n}`;
-  $('.ring-sub', el).textContent = `${value}/${max}`;
+  $('.ring-sub', el).textContent = sub ?? `${value}/${max}`;
+  const more = $('.ring-detail', el);
+  more.textContent = detail || '';
+  more.hidden = !detail;
 }
 
 export function resetRing(el) {

@@ -7,13 +7,13 @@
  * pulled. Bump VERSION on release and old caches are dropped on activate.
  */
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = `dual-n-back-${VERSION}`;
 
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/main.js', 'js/ui.js', 'js/game.js', 'js/engine.js', 'js/audio.js',
-  'js/store.js', 'js/icons.js', 'js/results.js', 'js/stats.js', 'js/select.js', 'js/rehab.js',
+  'js/store.js', 'js/icons.js', 'js/results.js', 'js/stats.js', 'js/select.js', 'js/rehab.js', 'js/session.js',
   'assets/icon.svg',
   'assets/sounds/tap.wav', 'assets/sounds/level.wav',
   'assets/sounds/letter-0.wav', 'assets/sounds/letter-1.wav', 'assets/sounds/letter-2.wav',
