@@ -505,6 +505,14 @@ circle.dp-ear { fill: var(--flash); stroke: none; }
 .setting-card { background: var(--surface); padding: 0; overflow: hidden; }
 .setting-head { position: relative; display: flex; align-items: center; justify-content: center; padding: 3% 12%; }
 .setting-label { font-size: clamp(17px, 5.2vw, 26px); letter-spacing: .06em; color: var(--text); }
+/* Session type and length sit side by side: one decision, read left to right. */
+.setting-row { flex: 0 0 auto; display: flex; gap: 10px; margin: 0 3.5%; }
+.setting-row > .card { flex: 1 1 0; min-width: 0; margin: 0; display: flex; flex-direction: column; }
+.setting-row > .card > .select-wrap { margin-top: auto; }
+.setting-row .setting-head { padding: 4% 18%; min-height: 3.2em; }
+.setting-row .setting-label { font-size: clamp(14px, 4.2vw, 21px); text-align: center; flex: 1; }
+.setting-row .select-trigger { font-size: clamp(14px, 4.1vw, 20px); padding: 7% 8%; }
+.setting-row .setting-card .help-dot { right: 6%; width: 30px; max-width: none; }
 .setting-card .help-dot { top: 50%; transform: translateY(-50%); width: 9%; max-width: 40px; }
 .select-wrap { position: relative; }
 .select { position: relative; display: block; }

@@ -104,12 +104,12 @@ const DEMOS = {
   eye: {
     key: 'eye', n: 2, step: 1100, grid: true, sound: false,
     positions: [1, 6, 1],
-    lead: 'N = 2 — watch the squares.',
+    lead: 'N = 2. Watch the squares.',
   },
   ear: {
     key: 'ear', n: 2, step: 1100, grid: false, sound: true,
     letters: [0, 3, 0],
-    lead: 'N = 2 — listen to the letters.',
+    lead: 'N = 2. Listen to the letters.',
   },
 };
 
@@ -122,7 +122,7 @@ function tutorialSpec(n) {
     key: `tutorial-${n}`, n, step: TIMING.trial, grid: true, sound: true,
     positions: makeSequence(n, trials, VISUAL_POSITIONS, 2),
     letters: makeSequence(n, trials, LETTER_COUNT, 2),
-    lead: `Dual ${n}-Back — compare each square and sound with the one ` +
+    lead: `Dual ${n}-Back. Compare each square and sound with the one ` +
           `${n === 1 ? 'just before it' : `${n} back`}.`,
   };
 }
@@ -195,16 +195,16 @@ function playDemo(button, spec) {
       if (spec.sound && spec.letters) audio.letter(spec.letters[i]);
 
       caption.textContent = i < spec.n
-        ? `${i + 1} of ${steps} — nothing to compare it with yet.`
-        : hitPos && hitSnd ? `${i + 1} of ${steps} — both match. Press the eye and the ear.`
-        : hitPos ? `${i + 1} of ${steps} — the position matches. Press the eye.`
-        : hitSnd ? `${i + 1} of ${steps} — the sound matches. Press the ear.`
-        : `${i + 1} of ${steps} — no match. Press nothing.`;
+        ? `${i + 1} of ${steps}: nothing to compare it with yet.`
+        : hitPos && hitSnd ? `${i + 1} of ${steps}: both match. Press the eye and the ear.`
+        : hitPos ? `${i + 1} of ${steps}: the position matches. Press the eye.`
+        : hitSnd ? `${i + 1} of ${steps}: the sound matches. Press the ear.`
+        : `${i + 1} of ${steps}: no match. Press nothing.`;
     }, i * spec.step));
   }
 
   timers.push(setTimeout(() => {
-    caption.textContent = 'That is the whole game — the same thing, for 20+N of them.';
+    caption.textContent = 'That is the whole game, repeated for 20+N squares and sounds.';
     button.classList.remove('playing');
     demo = null;              // a second press replays it rather than clearing it
     paintPlayIcon();
@@ -289,10 +289,10 @@ function bind() {
   $('#minutes-select').addEventListener('change', sessionSetting('minutes'));
   $('#rounds-select').addEventListener('change', sessionSetting('roundGoal'));
   $('#goal-help').addEventListener('click', () => dialog('SESSION',
-    '<p>TIME-BASED sessions run for a set number of minutes; ROUND-BASED ones for a ' +
+    '<p>Sessions BY TIME run for a set number of minutes; sessions BY ROUNDS for a ' +
     'set number of rounds. Either way the session starts with your first round, and ' +
     'the ring on the home screen fills as it goes.</p><p>A round started with time ' +
-    'left always plays to the end — the session closes once it is scored.</p>'));
+    'left always plays to the end, and the session closes once it is scored.</p>'));
   $('#rest-select').addEventListener('change', (e) => {
     store.set('rest', e.target.value);
     if (e.target.value === 'off' && store.rehab.reason === 'rest') store.setRehab({ restUntil: 0 });
@@ -305,12 +305,12 @@ function bind() {
     'your stronger hand.</p><p>With a keyboard, A and L still answer the squares ' +
     'and the sounds.</p>'));
   $('#rest-help').addEventListener('click', () => dialog('REST TIMER',
-    '<p>After every round the play button stays locked for a 45-second rest — read ' +
-    'your score, rest your eyes, reset.</p><p>With a 20-minute session that comes ' +
+    '<p>After every round the play button stays locked for a 45-second rest. Use it ' +
+    'to read your score, rest your eyes and reset.</p><p>With a 20-minute session that comes ' +
     'to about 10 to 12 rounds.</p>'));
   $('#fatigue-help').addEventListener('click', () => dialog('FATIGUE DETECTION',
-    '<p>If your accuracy falls sharply — at least 30 points under your level earlier ' +
-    'in the sitting — for two rounds in a row, the app stops you for a five-minute ' +
+    '<p>If your accuracy falls sharply for two rounds in a row (at least 30 points ' +
+    'under your level earlier in the sitting), the app stops you for a five-minute ' +
     'fatigue break.</p><p>Accuracy here is matches caught out of matches caught, ' +
     'missed and pressed by mistake.</p>'));
   $('#first-n-help').addEventListener('click', () => dialog('DAILY FIRST N',

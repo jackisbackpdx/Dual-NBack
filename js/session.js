@@ -99,7 +99,7 @@ export function paintRings({ results = true } = {}) {
 
 export function sessionDoneDialog() {
   const what = session.timed
-    ? `your ${store.settings.minutes} minute session — ${plural(session.rounds, 'round').toLowerCase()}`
+    ? `your ${store.settings.minutes} minute session (${plural(session.rounds, 'round').toLowerCase()})`
     : `your ${session.roundGoal} round session`;
   dialog('SESSION COMPLETE',
     `<p>That is ${what}. Stopping here is the point: the window for training ` +

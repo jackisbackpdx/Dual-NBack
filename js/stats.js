@@ -40,7 +40,7 @@ function tiles(m) {
     ['DAY STREAK', m.streak, m.minutes >= 60
       ? `${Math.round(m.minutes / 60)} h trained` : `${m.minutes} min trained`],
     ['D-PRIME (d′)', two(m.d7), 'sensitivity, last 7 days'],
-    ['CONSISTENCY', m.consistency ? steadiness(m.consistency.spread) : '—',
+    ['CONSISTENCY', m.consistency ? steadiness(m.consistency.spread) : 'N/A',
       m.consistency ? `d′ ±${two(m.consistency.spread)} over ${m.consistency.count} ${m.consistency.unit}`
         : 'needs 3 rounds'],
   ];
@@ -232,8 +232,8 @@ function insights(m) {
   const gap = m.eyeAccuracy - m.earAccuracy;
   if (Math.abs(gap) >= 0.08) {
     const weak = gap > 0 ? 'letter sounds' : 'square positions';
-    out.push(`You catch ${pct(Math.abs(gap))} fewer ${weak} than the other sense — ` +
-             `that gap is what holds N down.`);
+    out.push(`You catch ${pct(Math.abs(gap))} fewer ${weak} than the other sense. ` +
+             `That gap is what holds N down.`);
   }
 
   if (m.falsePerRound >= 2) {
@@ -243,7 +243,7 @@ function insights(m) {
 
   if (m.dPrev7 !== null && Math.abs(m.d7 - m.dPrev7) >= 0.2) {
     out.push(`Your d′ is ${m.d7 > m.dPrev7 ? 'up' : 'down'} ${two(Math.abs(m.d7 - m.dPrev7))} ` +
-             `on the week before — ${m.d7 > m.dPrev7 ? 'sharper' : 'less sharp'} at telling ` +
+             `on the week before, so you are ${m.d7 > m.dPrev7 ? 'sharper' : 'less sharp'} at telling ` +
              `matches from guesses.`);
   }
 
