@@ -9,6 +9,10 @@
  * time is a line, per-day volume is bars against the recommended 20, and the two
  * catch rates are meters, each carrying its own icon so identity never rests on
  * colour alone.
+ *
+ * The d′ tiles and panel are for rehab use: d′ measures sensitivity to matches
+ * with guessing and trigger-happiness taken out, and its round-to-round spread
+ * says how steady that sensitivity is — the trend a therapist wants to see.
  */
 
 import { store } from './store.js';
@@ -22,6 +26,10 @@ const MAX_DAYS = 30;
 
 const pct = (v) => `${Math.round(v * 100)}%`;
 const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+const two = (v) => (Math.round(v * 100) / 100).toFixed(2);
+
+/** Round-to-round spread of d′, put into words. */
+const steadiness = (sd) => (sd < 0.5 ? 'STEADY' : sd < 1 ? 'VARIABLE' : 'UNEVEN');
 
 /* ── tiles ───────────────────────────────────────────────── */
 function tiles(m) {
@@ -31,6 +39,10 @@ function tiles(m) {
     ['MATCHES CAUGHT', pct(m.accuracy), `${m.rounds} rounds`],
     ['DAY STREAK', m.streak, m.minutes >= 60
       ? `${Math.round(m.minutes / 60)} h trained` : `${m.minutes} min trained`],
+    ['D-PRIME (d′)', two(m.d7), 'sensitivity, last 7 days'],
+    ['CONSISTENCY', m.consistency ? steadiness(m.consistency.spread) : '—',
+      m.consistency ? `d′ ±${two(m.consistency.spread)} over ${m.consistency.count} ${m.consistency.unit}`
+        : 'needs 3 rounds'],
   ];
   $('#stat-tiles').innerHTML = items.map(([label, value, sub]) => `
     <div class="tile">
@@ -146,6 +158,66 @@ function senses(m) {
     <p class="panel-foot">${one(m.falsePerRound)} presses a round with no match behind them</p>`;
 }
 
+/* ── d′ per day, one line per sense ────────────────────────── */
+function dPrimeChart(rows, m) {
+  const data = rows.slice(-MAX_DAYS);
+  const first = rows.length - data.length + 1;
+  const w = 340, h = 170;
+  const pad = { l: 30, r: 14, t: 12, b: 22 };
+  const values = data.flatMap((d) => [d.dEye, d.dEar]);
+  const yMax = Math.max(3, Math.ceil(Math.max(...values)));
+  const yMin = Math.min(0, Math.floor(Math.min(...values)));
+  const x = (i) => pad.l + (data.length === 1 ? (w - pad.l - pad.r) / 2
+    : (i / (data.length - 1)) * (w - pad.l - pad.r));
+  const y = (v) => h - pad.b - ((v - yMin) / (yMax - yMin)) * (h - pad.t - pad.b);
+
+  let grid = '';
+  for (let v = yMin; v <= yMax; v++) {
+    const yy = y(v).toFixed(1);
+    grid += `<line class="${v === 0 ? 'dp-chance' : 'dp-grid'}" x1="${pad.l}" y1="${yy}" ` +
+            `x2="${w - pad.r}" y2="${yy}"/>` +
+            `<text class="dp-axis" x="${pad.l - 6}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${v}</text>`;
+  }
+  if (yMin <= 0) {
+    grid += `<text class="dp-axis" x="${w - pad.r}" y="${(y(0) - 4).toFixed(1)}" ` +
+            `text-anchor="end">CHANCE</text>`;
+  }
+
+  // The ear line is dashed as well as coloured, so the two never rest on hue alone.
+  const series = (key, cls) => {
+    if (data.length === 1) {
+      return `<circle class="${cls}" cx="${x(0).toFixed(1)}" cy="${y(data[0][key]).toFixed(1)}" r="4"/>`;
+    }
+    const pts = data.map((d, i) => `${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ');
+    return `<polyline class="${cls}" points="${pts}"/>`;
+  };
+  const marks = data.map((d, i) =>
+    `<rect class="mark" x="${(x(i) - 7).toFixed(1)}" y="${pad.t}" width="14" ` +
+    `height="${h - pad.t - pad.b}" fill="transparent" ` +
+    `data-tip="Day ${first + i} · eye d′ ${two(d.dEye)} · ear d′ ${two(d.dEar)}"/>`).join('');
+  const labels =
+    `<text class="dp-axis" x="${pad.l}" y="${h - 6}">DAY ${first}</text>` +
+    (data.length > 1
+      ? `<text class="dp-axis" x="${w - pad.r}" y="${h - 6}" text-anchor="end">DAY ${rows.length}</text>`
+      : '');
+
+  const c = m.consistency;
+  $('#dprime-panel').innerHTML = `
+    <h3 class="panel-h">SENSITIVITY (d′)</h3>
+    <p class="panel-sub">How well you tell a match from a non-match, with guessing taken out.
+      0 is chance; 1 is fair; 2 or more is strong.</p>
+    <svg class="dp-chart" viewBox="0 0 ${w} ${h}">${grid}
+      ${series('dEye', 'dp-eye')}${series('dEar', 'dp-ear')}${marks}${labels}</svg>
+    <div class="dp-legend">
+      <span><i class="swatch eye"></i><span class="dp-ic">${icons.eyeScore()}</span>POSITION ${two(m.dEye)}</span>
+      <span><i class="swatch ear"></i><span class="dp-ic">${icons.earScore()}</span>SOUND ${two(m.dEar)}</span>
+    </div>
+    <p class="panel-foot">${c
+      ? `Consistency: d′ varies by ±${two(c.spread)} across your last ${c.count} ${c.unit} ` +
+        `(${steadiness(c.spread).toLowerCase()}). Under ±0.5 is steady.`
+      : 'Consistency appears after three rounds.'}</p>`;
+}
+
 /* ── the sentences ───────────────────────────────────────── */
 function insights(m) {
   const out = [];
@@ -169,6 +241,12 @@ function insights(m) {
              `Three in one sense is enough to stop N going up.`);
   }
 
+  if (m.dPrev7 !== null && Math.abs(m.d7 - m.dPrev7) >= 0.2) {
+    out.push(`Your d′ is ${m.d7 > m.dPrev7 ? 'up' : 'down'} ${two(Math.abs(m.d7 - m.dPrev7))} ` +
+             `on the week before — ${m.d7 > m.dPrev7 ? 'sharper' : 'less sharp'} at telling ` +
+             `matches from guesses.`);
+  }
+
   if (m.roundsPerDay7 < GOAL) {
     out.push(`The recommendation is 20 rounds, 4–5 days a week. ` +
              `You are averaging ${one(m.roundsPerDay7)} a day.`);
@@ -176,7 +254,7 @@ function insights(m) {
     out.push(`${m.streak} days in a row at or above the recommended twenty rounds.`);
   }
 
-  $('#insights').innerHTML = out.slice(0, 4).map((t) => `<li>${t}</li>`).join('');
+  $('#insights').innerHTML = out.slice(0, 5).map((t) => `<li>${t}</li>`).join('');
 }
 
 /* ── a shared tooltip for every mark on the screen ────────── */
@@ -214,7 +292,8 @@ export function renderChart() {
   const m = store.metrics();
   const body = $('#screen-stats .body');
   const empty = $('#stats-empty');
-  const panels = ['#stat-tiles', '#chart-card', '#rounds-panel', '#senses-panel', '#insights'];
+  const panels = ['#stat-tiles', '#chart-card', '#rounds-panel', '#senses-panel', '#dprime-panel',
+    '#insights'];
 
   if (!m) {
     panels.forEach((s) => { $(s).hidden = true; });
@@ -228,6 +307,7 @@ export function renderChart() {
   averageChart(m.rows);
   roundsChart(m.rows, m);
   senses(m);
+  dPrimeChart(m.rows, m);
   insights(m);
   wireTips(body);
 }

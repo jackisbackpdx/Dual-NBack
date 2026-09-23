@@ -1,15 +1,26 @@
 /* Settings and training history, kept in localStorage. */
 
+import { dPrime, roundDPrime, roundAccuracy, spread } from './engine.js';
+
 const KEY = 'dual-n-back/v1';
 
 const DEFAULTS = {
-  settings: { firstN: 'always1', theme: 'system', tapSounds: true },
+  settings: {
+    firstN: 'always1', theme: 'system', tapSounds: true,
+    session: 'off',       // rehab mode session length in minutes: 'off' | '15' | '20'
+    fatigue: 'off',       // fatigue detection: 'off' | 'on'
+    hand: 'both',         // answer buttons: 'both' | 'left' | 'right'
+  },
   n: 1,
   best: 1,            // highest N ever reached
   day: '',            // day the counters below belong to
   roundsToday: 0,
   history: {},        // 'YYYY-MM-DD' -> see blankDay()
+  log: [],            // the most recent rounds, one entry each — see finishRound()
+  rehab: { start: 0, restUntil: 0, reason: '', fatigueAt: 0 },   // epoch ms
 };
+
+const LOG_MAX = 1000;
 
 const blankDay = () => ({
   rounds: 0, nSum: 0, bestN: 0, trials: 0, seconds: 0,
@@ -31,6 +42,8 @@ class Store {
       ...DEFAULTS, ...saved,
       settings: { ...DEFAULTS.settings, ...(saved.settings || {}) },
       history: saved.history || {},
+      log: saved.log || [],
+      rehab: { ...DEFAULTS.rehab, ...(saved.rehab || {}) },
     };
     this.rollDay();
   }
@@ -79,10 +92,29 @@ class Store {
       d.vHit += score.visual.hits; d.vMiss += score.visual.misses; d.vFalse += score.visual.false;
       d.aHit += score.audio.hits;  d.aMiss += score.audio.misses;  d.aFalse += score.audio.false;
     }
+    this.state.log.push({
+      day: t, at: Date.now(), n,
+      v: score ? [score.visual.hits, score.visual.misses, score.visual.false] : [0, 0, 0],
+      a: score ? [score.audio.hits, score.audio.misses, score.audio.false] : [0, 0, 0],
+    });
+    if (this.state.log.length > LOG_MAX) this.state.log.splice(0, this.state.log.length - LOG_MAX);
     this.state.roundsToday++;
     this.state.best = Math.max(this.state.best || 1, n, nextN);
     this.state.n = nextN;
     this.save();
+  }
+
+  get rehab() { return this.state.rehab; }
+  setRehab(patch) { Object.assign(this.state.rehab, patch); this.save(); }
+
+  /** Logged rounds as score sheets, oldest first; `since` is epoch ms. */
+  rounds(since = 0) {
+    const sheet = ([hits, misses, f]) => ({ hits, misses, false: f, mistakes: misses + f });
+    return this.state.log.filter((r) => r.at >= since).map((r) => {
+      const score = { visual: sheet(r.v), audio: sheet(r.a) };
+      const trials = ROUND_TRIALS + r.n;
+      return { ...r, score, trials, accuracy: roundAccuracy(score), d: roundDPrime(score, trials) };
+    });
   }
 
   /** Chronological per-day rows for the statistics screen. */
@@ -95,6 +127,10 @@ class Store {
         hits: d.vHit + d.aHit,
         misses: d.vMiss + d.aMiss,
         falses: d.vFalse + d.aFalse,
+        // d′ per sense; every trial of the day was shown to both senses
+        dEye: dPrime(d.vHit, d.vMiss, d.vFalse, d.trials),
+        dEar: dPrime(d.aHit, d.aMiss, d.aFalse, d.trials),
+        dBoth: dPrime(d.vHit + d.aHit, d.vMiss + d.aMiss, d.vFalse + d.aFalse, d.trials * 2),
       };
     });
   }
@@ -121,6 +157,16 @@ class Store {
     const last7 = rows.slice(-7);
     const prev7 = rows.slice(-14, -7);
     const caught = (h, m) => (h + m ? h / (h + m) : 0);
+    const pooled = (list) => dPrime(sum(list, 'hits'), sum(list, 'misses'), sum(list, 'falses'),
+      sum(list, 'trials') * 2);
+    // Consistency: how far round-to-round d′ wanders over the last twenty rounds.
+    // Days stand in for rounds when the history predates the round log.
+    const recent = this.rounds().slice(-20).map((r) => r.d.both);
+    const consistency = recent.length >= 3
+      ? { spread: spread(recent), count: recent.length, unit: 'rounds' }
+      : rows.length >= 3
+        ? { spread: spread(rows.slice(-7).map((d) => d.dBoth)), count: Math.min(rows.length, 7), unit: 'days' }
+        : null;
     return {
       rows,
       days: rows.length,
@@ -137,6 +183,11 @@ class Store {
       eyeMissPerRound: sum(rows, 'rounds') ? sum(rows, 'vMiss') / sum(rows, 'rounds') : 0,
       earMissPerRound: sum(rows, 'rounds') ? sum(rows, 'aMiss') / sum(rows, 'rounds') : 0,
       streak: this.streak(),
+      d7: pooled(last7),
+      dPrev7: prev7.length ? pooled(prev7) : null,
+      dEye: dPrime(sum(rows, 'vHit'), sum(rows, 'vMiss'), sum(rows, 'vFalse'), sum(rows, 'trials')),
+      dEar: dPrime(sum(rows, 'aHit'), sum(rows, 'aMiss'), sum(rows, 'aFalse'), sum(rows, 'trials')),
+      consistency,
       today: rows[rows.length - 1].day === today() ? rows[rows.length - 1] : null,
     };
   }

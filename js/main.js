@@ -7,11 +7,12 @@ import {
 import { audio } from './audio.js';
 import { store } from './store.js';
 import { icons, paint } from './icons.js';
-import { $, $$, nav, drawer, dialog, closeDialog, toast, ring, attachRipple } from './ui.js';
+import { $, $$, nav, drawer, dialog, closeDialog, toast, ring, attachRipple, wait } from './ui.js';
 import { enhanceAllSelects } from './select.js';
 import { runRound } from './game.js';
 import { showResults, paintScoreIcons, scoreLegendDialog, shareText } from './results.js';
 import { renderChart } from './stats.js';
+import { rehab, refresh as refreshRehab, startTicker, showFatigueBreak, sessionDoneDialog } from './rehab.js';
 
 let lastScore = null;
 let busy = false;
@@ -25,6 +26,8 @@ function paintIcons() {
   paint($('#stats-back'), 'back');
   paint($('#help-menu'), 'menu');
   paint($('#settings-menu'), 'menu');
+  paint($('#rehab-menu'), 'menu');
+  paint($('#break-back'), 'back');
   paint($('#home-play'), 'play');
   paint($('#results-play'), 'play');
   paint($('#btn-visual'), 'eye');
@@ -35,7 +38,7 @@ function paintIcons() {
   paintPlayIcon();
   $('#share-score .ic').innerHTML = icons.share();
   $('#tap-sounds .ic').innerHTML = icons.volume();
-  const drawerIcons = ['grid', 'chart', 'question', 'gear'];
+  const drawerIcons = ['grid', 'chart', 'heart', 'question', 'gear'];
   $$('.drawer-item').forEach((el, i) => { el.querySelector('.ic').innerHTML = icons[drawerIcons[i]](); });
   $('#score-card').style.setProperty('--icon-knockout', 'var(--bg)');
 }
@@ -50,6 +53,11 @@ function applyTheme() {
 }
 media.addEventListener('change', applyTheme);
 
+/* ── answer button layout ────────────────────────────────── */
+function applyHand() {
+  document.documentElement.dataset.hand = store.settings.hand;
+}
+
 /* ── home ────────────────────────────────────────────────── */
 function renderHome() {
   store.rollDay();
@@ -59,11 +67,13 @@ function renderHome() {
 
 /* ── one round, start to finish ──────────────────────────── */
 async function playRound() {
-  if (busy) return;
+  if (busy || rehab.resting) return;
   busy = true;
   try {
     await audio.unlock();
     const n = store.n;
+    rehab.beforeRound();
+    refreshRehab(true);
     const result = await runRound(n);
     if (!result) { await nav.sequential('home'); renderHome(); return; }
 
@@ -71,8 +81,15 @@ async function playRound() {
     const next = nextN(n, score);
     lastScore = { score, n };
     store.finishRound(n, next, score);
+    const told = rehab.afterRound();
     await showResults({ score, fromN: n, toN: next, roundsToday: store.roundsToday });
     renderHome();
+    if (told.fatigue) {
+      await wait(1500);
+      if (nav.current === $('#screen-results')) await showFatigueBreak(told.fatigue);
+    } else if (told.sessionDone) {
+      sessionDoneDialog();
+    }
   } finally {
     busy = false;
   }
@@ -199,12 +216,18 @@ function renderSettings() {
   $('#first-n-select').value = store.settings.firstN;
   $('#theme-select').value = store.settings.theme;
   $('#tap-sounds').classList.toggle('off', !store.settings.tapSounds);
+  $('#hand-select').value = store.settings.hand;
+  $('#session-select').value = store.settings.session;
+  $('#fatigue-select').value = store.settings.fatigue;
+  // the custom menus paint off the native select's change event
+  ['#hand-select', '#session-select', '#fatigue-select', '#first-n-select', '#theme-select']
+    .forEach((sel) => $(sel).dispatchEvent(new Event('change')));
 }
 
 /* ── boot ────────────────────────────────────────────────── */
 function bind() {
   // drawer
-  ['#home-menu', '#help-menu', '#settings-menu'].forEach((s) =>
+  ['#home-menu', '#help-menu', '#settings-menu', '#rehab-menu'].forEach((s) =>
     $(s).addEventListener('click', () => drawer.open()));
   $('#scrim').addEventListener('click', () => drawer.close());
   $$('.drawer-item').forEach((item) => item.addEventListener('click', () => {
@@ -246,11 +269,40 @@ function bind() {
     renderSettings();
     if (on) { audio.unlock().then(() => audio.tap()); }
   });
+  $('#hand-select').addEventListener('change', (e) => { store.set('hand', e.target.value); applyHand(); });
+  $('#session-select').addEventListener('change', (e) => {
+    if (e.target.value === store.settings.session) return;
+    store.set('session', e.target.value);
+    store.setRehab({ start: 0 });           // a new length starts a fresh session
+    if (e.target.value === 'off' && store.rehab.reason === 'rest') store.setRehab({ restUntil: 0 });
+    refreshRehab(true);
+  });
+  $('#fatigue-select').addEventListener('change', (e) => store.set('fatigue', e.target.value));
+  $('#hand-help').addEventListener('click', () => dialog('ANSWER BUTTONS',
+    '<p>ONE-HANDED stacks the position (eye) and sound (ear) buttons on one side of ' +
+    'the screen, so the whole game can be played with one thumb. Pick the side of ' +
+    'your stronger hand.</p><p>With a keyboard, A and L still answer the squares ' +
+    'and the sounds.</p>'));
+  $('#session-help').addEventListener('click', () => dialog('REHAB MODE',
+    '<p>Your first round starts a 15 or 20-minute session clock. After every round ' +
+    'the play button stays locked for a 45-second rest — read your score, rest your ' +
+    'eyes, reset.</p><p>When the time is up the app tells you the session is ' +
+    'complete. A 20-minute session is about 10 to 12 rounds.</p>'));
+  $('#fatigue-help').addEventListener('click', () => dialog('FATIGUE DETECTION',
+    '<p>If your accuracy falls sharply — at least 30 points under your level earlier ' +
+    'in the sitting — for two rounds in a row, the app stops you for a five-minute ' +
+    'fatigue break.</p><p>Accuracy here is matches caught out of matches caught, ' +
+    'missed and pressed by mistake.</p>'));
   $('#first-n-help').addEventListener('click', () => dialog('DAILY FIRST N',
     "<p>Setting 'DAILY FIRST N' sets N for the first game each day. SAME AS " +
     "YESTERDAY'S LAST means that N is the same as where you left off in the last " +
     'game, ALWAYS 1 sets N always to one and ALWAYS MY BEST sets N to the highest ' +
     "N you've ever reached.</p>"));
+
+  // rehabilitation
+  $('#rehab-settings').addEventListener('click', () => { renderSettings(); nav.show('settings'); });
+  $('#break-back').addEventListener('click', () => { renderHome(); nav.show('home'); });
+  $('#break-done').addEventListener('click', () => { renderHome(); nav.show('home'); });
 
   // help
   $$('#screen-help [data-demo]').forEach((btn) => btn.addEventListener('click', () =>
@@ -271,10 +323,12 @@ function bind() {
 
 paintIcons();
 applyTheme();
+applyHand();
 enhanceAllSelects();
 bind();
 renderHome();
 renderSettings();
+startTicker();
 nav.show('home');
 audio.load();
 audio.tapEnabled = store.settings.tapSounds;

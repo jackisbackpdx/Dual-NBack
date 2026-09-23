@@ -104,6 +104,13 @@ export const icons = {
     'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>' +
     '<circle cx="11.9" cy="16.8" r="1.1"/>'),
 
+  heart: () => svg('0 0 24 24',
+    '<path d="M12 20.3 10.8 19.2C6.4 15.2 3.5 12.6 3.5 9.4 3.5 6.8 5.5 4.8 8.1 4.8' +
+    'c1.5 0 2.9.7 3.9 1.8 1-1.1 2.4-1.8 3.9-1.8 2.6 0 4.6 2 4.6 4.6 0 3.2-2.9 5.8-7.3 9.8z" ' +
+    'stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" fill="none"/>' +
+    '<path d="M6.6 11.6h2.8l1.4-2.4 2 4.6 1.4-2.2h3.2" stroke="currentColor" stroke-width="1.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" fill="none"/>'),
+
   grid: () => svg('0 0 24 24',
     '<rect x="3" y="3" width="7.4" height="7.4" rx="1"/>' +
     '<rect x="13.6" y="3" width="7.4" height="7.4" rx="1"/>' +

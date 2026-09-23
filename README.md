@@ -51,6 +51,23 @@ won't *install* — Add to Home Screen and the service worker need HTTPS or
 In VS Code, `Cmd-Shift-B` runs the server and `Tasks: Run Test Task` runs the
 tests; both are wired up in `.vscode/tasks.json`.
 
+### Rehabilitation features
+
+Additions for post-stroke cognitive training, beyond the original app:
+
+- **REHABILITATION** (drawer) — guidance on training after a stroke, with the
+  PMC study and the AHA rehabilitation guidelines linked.
+- **Settings → Accessibility & rehab**
+  - *Answer buttons* — side by side, or one-handed on the left or right: the
+    eye and ear buttons stack on one side so the game plays with one thumb.
+  - *Rehab mode* — 15 or 20-minute sessions. The first round starts the clock,
+    and every round is followed by a locked 45-second rest.
+  - *Fatigue detection* — two rounds in a row at least 30 points under the
+    sitting's earlier accuracy stop play for a five-minute break.
+- **Statistics** — d′ (d-prime) per sense, charted per day, plus consistency:
+  the spread of d′ over the last 20 rounds. The math (log-linear corrected
+  d′, the fatigue check) is in `js/engine.js` and covered by `npm test`.
+
 ---
 
 ## What was matched, and how
