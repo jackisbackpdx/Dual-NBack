@@ -1,17 +1,18 @@
-/* Rehab mode: the session timer, the rest between rounds and the fatigue break.
+/* Rehab mode: the rest between rounds and the fatigue break.
  *
- * All of it is pacing the player would otherwise have to keep in their head.
- * With a session length set, the first round starts a 15 or 20 minute clock
- * and every round is followed by a 45 second rest before play unlocks. With
+ * Both are pacing the player would otherwise have to keep in their head. With
+ * the rest on, every round is followed by 45 seconds before play unlocks. With
  * fatigue detection on, two sharp drops in accuracy in a row end the sitting
  * in a five minute break. The state lives in the store, so a reload in the
- * middle of a rest doesn't cut it short.
+ * middle of a rest doesn't cut it short. The session itself — its clock and
+ * its ring — is session.js; this module's ticker keeps that ring moving.
  */
 
 import { fatigueCheck } from './engine.js';
 import { store } from './store.js';
-import { $, $$, nav, dialog } from './ui.js';
+import { $, $$, nav } from './ui.js';
 import { icons } from './icons.js';
+import { paintRings, session, sessionDoneDialog } from './session.js';
 
 export const REST_MS = 45 * 1000;
 export const BREAK_MS = 5 * 60 * 1000;
@@ -23,35 +24,16 @@ const clock = (ms) => {
 };
 const pct = (v) => `${Math.round(v * 100)}%`;
 
-const sessionMs = () => {
-  const m = Number(store.settings.session);
-  return Number.isFinite(m) && m > 0 ? m * 60 * 1000 : 0;
-};
-
 export const rehab = {
-  get on() { return sessionMs() > 0; },
+  get on() { return store.settings.rest !== 'off'; },
 
   /** Milliseconds of rest still owed, 0 when play is open. */
   get resting() { return Math.max(0, store.rehab.restUntil - Date.now()); },
 
-  /** Milliseconds left in the running session, or null when none is running. */
-  get left() {
-    const { start } = store.rehab;
-    if (!this.on || !start) return null;
-    return start + sessionMs() - Date.now();
-  },
-
-  /** Called as a round starts. A session that ran out gives way to a new one. */
-  beforeRound() {
-    if (!this.on) return;
-    const left = this.left;
-    if (left === null || left <= 0) store.setRehab({ start: Date.now() });
-  },
-
   /** Called once a round is booked. Says what the player should be told. */
   afterRound() {
     const now = Date.now();
-    const out = { fatigue: null, sessionDone: false };
+    const out = { fatigue: null, sessionDone: session.afterRound() };
 
     if (store.settings.fatigue === 'on') {
       const hit = fatigueCheck(sitting(now).map((r) => r.accuracy));
@@ -62,10 +44,9 @@ export const rehab = {
       }
     }
 
-    if (this.on) {
-      const left = this.left;
-      if (left !== null && left <= 0) { out.sessionDone = true; store.setRehab({ start: 0 }); }
-      if (!out.fatigue) store.setRehab({ restUntil: now + REST_MS, reason: 'rest' });
+    // no rest owed after the round that closed the session
+    if (this.on && !out.fatigue && !out.sessionDone) {
+      store.setRehab({ restUntil: now + REST_MS, reason: 'rest' });
     }
     refresh();
     return out;
@@ -87,17 +68,18 @@ let lastPaint = '';
 
 function pillText() {
   const rest = rehab.resting;
-  const left = rehab.left;
-  const session = left !== null && left > 0 ? `${clock(left)} LEFT` : null;
   if (rest && store.rehab.reason === 'fatigue') return `FATIGUE BREAK · ${clock(rest)}`;
-  if (rest) return session ? `REST · ${clock(rest)} · SESSION ${session}` : `REST · ${clock(rest)}`;
-  if (session) return `REHAB SESSION · ${session}`;
-  if (rehab.on) return `REHAB MODE · ${store.settings.session} MIN SESSION`;
+  if (rest) return `REST · ${clock(rest)}`;
   return '';
 }
 
-/** Repaint the pills, the play buttons and the break screen's clock. */
+/** Repaint the session rings, the pills, the play buttons and the break clock. */
 export function refresh(force = false) {
+  const inRound = $('#screen-game').classList.contains('active');
+  if (!inRound) {
+    paintRings();
+    if (session.expiredIdle()) sessionDoneDialog();
+  }
   if (force) lastPaint = '';
   const rest = rehab.resting;
   const text = pillText();
@@ -125,7 +107,7 @@ export function refresh(force = false) {
 export function startTicker() {
   $$('.play-btn').forEach((btn) => { btn.dataset.label = btn.getAttribute('aria-label'); });
   refresh();
-  setInterval(refresh, 500);
+  setInterval(() => refresh(), 500);
 }
 
 /* ── what the player is told ─────────────────────────────── */
@@ -136,12 +118,4 @@ export function showFatigueBreak({ baseline, recent }) {
     'A drop that sharp is usually fatigue, not ability.';
   refresh(true);
   return nav.sequential('break');
-}
-
-export function sessionDoneDialog() {
-  dialog('SESSION COMPLETE',
-    `<p>That is your ${store.settings.session} minute session. Stopping here is the ` +
-    'point: the window for training is short, and the recovery happens in the rest ' +
-    'that follows.</p><p>If you split your training, the next session can start ' +
-    'later today.</p>');
 }

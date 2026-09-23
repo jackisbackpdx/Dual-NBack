@@ -152,7 +152,8 @@
       <h2 class="help-h">BUILT INTO THE APP</h2>
       <p>These can all be switched on in Settings, so the app keeps the pace for you:</p>
       <ul class="rehab-list">
-        <li><b>Rehab mode.</b> Choose a 15 or 20-minute session. The clock starts with your first round, and after every round the play button stays locked for a 45-second rest.</li>
+        <li><b>Timed sessions.</b> Sessions are 15 minutes by default (10 to 60 in Settings). The clock starts with your first round, the ring on the home screen fills as the time goes, and a round started in time always plays to the end.</li>
+        <li><b>Rest between rounds.</b> Locks the play button for a 45-second rest after every round.</li>
         <li><b>Fatigue detection.</b> If your accuracy drops sharply for two rounds in a row, the app stops you for a five-minute fatigue break.</li>
         <li><b>One-handed layout.</b> Stacks the position and sound buttons on the left or right, so the whole game can be played with one thumb.</li>
         <li><b>d&prime; (d-prime) tracking.</b> Statistics chart your sensitivity to matches, separated from guessing, along with how consistent you are round to round — cleaner trends to share with your therapist.</li>
@@ -257,6 +258,47 @@
         </div>
       </div>
       <div class="card setting-card">
+        <div class="setting-head">
+          <span class="setting-label" id="goal-label">SESSION</span>
+          <button class="help-dot" id="goal-help" aria-label="About sessions">?</button>
+        </div>
+        <div class="select-wrap">
+          <select id="goal-select" aria-labelledby="goal-label">
+            <option value="time">TIME-BASED</option>
+            <option value="rounds">ROUND-BASED</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card" id="minutes-card">
+        <div class="setting-head"><span class="setting-label" id="minutes-label">SESSION LENGTH</span></div>
+        <div class="select-wrap">
+          <select id="minutes-select" aria-labelledby="minutes-label">
+            <option value="10">10 MINUTES</option>
+            <option value="15">15 MINUTES</option>
+            <option value="20">20 MINUTES</option>
+            <option value="25">25 MINUTES</option>
+            <option value="30">30 MINUTES</option>
+            <option value="35">35 MINUTES</option>
+            <option value="40">40 MINUTES</option>
+            <option value="45">45 MINUTES</option>
+            <option value="50">50 MINUTES</option>
+            <option value="55">55 MINUTES</option>
+            <option value="60">60 MINUTES</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card" id="rounds-card" hidden>
+        <div class="setting-head"><span class="setting-label" id="rounds-label">ROUNDS PER SESSION</span></div>
+        <div class="select-wrap">
+          <select id="rounds-select" aria-labelledby="rounds-label">
+            <option value="5">5 ROUNDS</option>
+            <option value="10">10 ROUNDS</option>
+            <option value="15">15 ROUNDS</option>
+            <option value="20">20 ROUNDS</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card">
         <div class="setting-head"><span class="setting-label">APPEARANCE</span></div>
         <div class="select-wrap">
           <select id="theme-select">
@@ -287,14 +329,13 @@
       </div>
       <div class="card setting-card">
         <div class="setting-head">
-          <span class="setting-label" id="session-label">REHAB MODE</span>
-          <button class="help-dot" id="session-help" aria-label="About rehab mode">?</button>
+          <span class="setting-label" id="rest-label">REST TIMER</span>
+          <button class="help-dot" id="rest-help" aria-label="About the rest between rounds">?</button>
         </div>
         <div class="select-wrap">
-          <select id="session-select" aria-labelledby="session-label">
+          <select id="rest-select" aria-labelledby="rest-label">
             <option value="off">OFF</option>
-            <option value="15">15 MINUTE SESSIONS</option>
-            <option value="20">20 MINUTE SESSIONS</option>
+            <option value="45">45 S BETWEEN ROUNDS</option>
           </select>
         </div>
       </div>

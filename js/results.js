@@ -6,9 +6,10 @@
  * arrives behind it one piece at a time.
  */
 
-import { DAILY_GOAL, TIMING } from './engine.js';
+import { TIMING } from './engine.js';
+import { paintRings } from './session.js';
 import { audio } from './audio.js';
-import { $, nav, ring, resetRing, wait, legendHtml, dialog } from './ui.js';
+import { $, nav, resetRing, wait, legendHtml, dialog } from './ui.js';
 import { icons } from './icons.js';
 
 const BEAT = {
@@ -47,7 +48,7 @@ function stage(els, hidden) {
   });
 }
 
-export async function showResults({ score, fromN, toN, roundsToday }) {
+export async function showResults({ score, fromN, toN }) {
   const bar = $('#screen-results .bar');
   const card = $('#score-card');
   const ringEl = $('#results-ring');
@@ -101,7 +102,7 @@ export async function showResults({ score, fromN, toN, roundsToday }) {
   stage([card], false);
   await wait(BEAT.ringIn);
   stage([ringEl], false);
-  ring(ringEl, { value: roundsToday, max: DAILY_GOAL });
+  paintRings();
   await wait(BEAT.play);
   stage([play], false);
   await wait(BEAT.footer);
