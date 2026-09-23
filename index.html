@@ -23,6 +23,7 @@
       <button class="bar-btn" id="home-stats" aria-label="Statistics"></button>
     </header>
     <div class="body home-body">
+      <p class="rehab-pill" hidden aria-live="polite"></p>
       <div class="spacer" style="flex:26.8"></div>
       <div class="ring-wrap" id="home-ring"></div>
       <div class="spacer" style="flex:33"></div>
@@ -62,6 +63,7 @@
       <span class="bar-btn" aria-hidden="true"></span>
     </header>
     <div class="body results-body">
+      <p class="rehab-pill" hidden aria-live="polite"></p>
       <div class="spacer" style="flex:5.8"></div>
       <div class="card score-card" id="score-card">
         <div class="score-col">
@@ -99,8 +101,69 @@
       <div class="chart-card" id="chart-card"></div>
       <div class="card panel" id="rounds-panel"></div>
       <div class="card panel" id="senses-panel"></div>
+      <div class="card panel" id="dprime-panel"></div>
       <ul class="insights" id="insights"></ul>
       <p class="stats-empty" id="stats-empty">Play a round to start your chart.</p>
+    </div>
+  </section>
+
+  <!-- ══ FATIGUE BREAK ══ -->
+  <section class="screen" id="screen-break">
+    <header class="bar">
+      <button class="bar-btn" id="break-back" aria-label="Home"></button>
+      <h1 class="bar-title">FATIGUE BREAK</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body break-body">
+      <div class="spacer"></div>
+      <h2 class="help-h">TIME TO REST</h2>
+      <p class="break-text" id="break-text"></p>
+      <p class="break-clock" id="break-clock" aria-live="off">5:00</p>
+      <p class="break-text">Close your eyes, drink some water, look at something far away.
+        If you have a headache or feel dizzy, stop for today.</p>
+      <div class="spacer"></div>
+      <button class="tutorial-btn break-done" id="break-done">BACK TO HOME</button>
+      <div class="spacer" style="flex:.4"></div>
+    </div>
+  </section>
+
+  <!-- ══ REHABILITATION ══ -->
+  <section class="screen" id="screen-rehab">
+    <header class="bar">
+      <button class="bar-btn" id="rehab-menu" aria-label="Menu"></button>
+      <h1 class="bar-title">REHABILITATION</h1>
+      <span class="bar-btn" aria-hidden="true"></span>
+    </header>
+    <div class="body help-body rehab-body">
+      <h2 class="help-h">COGNITIVE RECOVERY</h2>
+      <p>Dual N-Back training can serve as a powerful tool in your post-stroke neurorehabilitation toolkit. Research suggests that high-load cognitive exercises can actively stimulate <i>neuroplasticity</i> — the brain's ability to reorganize itself by forming new neural connections.</p>
+      <p>A milestone peer-reviewed neuroimaging study published in <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7683712/" target="_blank" rel="noopener noreferrer">PubMed Central (PMC)</a> found that consistent dual n-back training significantly increases resting-state functional connectivity in the right inferior frontal gyrus. This strengthening of frontoparietal networks directly correlates with improvements in working memory and attentional control.</p>
+
+      <h2 class="help-h">STRATEGY FOR SUCCESS</h2>
+      <p>To maximize your recovery outcomes while protecting your healing brain, follow these structured guidelines:</p>
+      <ul class="rehab-list">
+        <li><b>Start at N = 1.</b> Post-stroke cognitive fatigue is a significant barrier to recovery. Begin strictly at the 1-Back level. Only advance when you can confidently catch matches with high accuracy.</li>
+        <li><b>15 to 20-minute target.</b> Limit your total training session to 15 to 20 minutes a day. This timeframe is the optimal window to trigger neuroplastic changes without causing extreme mental burnout.</li>
+        <li><b>Structure your rest.</b> A standard 20-minute session should yield roughly 10 to 12 rounds. Always pause for 30 to 60 seconds between rounds to read your score, rest your eyes, and reset your mind.</li>
+        <li><b>The &ldquo;split&rdquo; alternative.</b> If a single 20-minute session feels overwhelming, split your training. Complete 5 rounds in the morning and 5 rounds in the afternoon.</li>
+        <li><b>Prioritize rest.</b> The brain requires massive amounts of energy to repair structural pathways. If you experience sudden headaches, dizziness, or sharp drops in accuracy, stop immediately and rest.</li>
+      </ul>
+
+      <h2 class="help-h">BUILT INTO THE APP</h2>
+      <p>These can all be switched on in Settings, so the app keeps the pace for you:</p>
+      <ul class="rehab-list">
+        <li><b>Rehab mode.</b> Choose a 15 or 20-minute session. The clock starts with your first round, and after every round the play button stays locked for a 45-second rest.</li>
+        <li><b>Fatigue detection.</b> If your accuracy drops sharply for two rounds in a row, the app stops you for a five-minute fatigue break.</li>
+        <li><b>One-handed layout.</b> Stacks the position and sound buttons on the left or right, so the whole game can be played with one thumb.</li>
+        <li><b>d&prime; (d-prime) tracking.</b> Statistics chart your sensitivity to matches, separated from guessing, along with how consistent you are round to round — cleaner trends to share with your therapist.</li>
+      </ul>
+      <button class="tutorial-btn" id="rehab-settings">OPEN SETTINGS</button>
+
+      <h2 class="help-h">MEDICAL REMINDER</h2>
+      <div class="rehab-note">
+        <p>Every stroke recovery journey is highly unique. These training guidelines align with the broad, whole-person recovery frameworks detailed in the <a href="https://www.ahajournals.org/doi/10.1161/STR.0000000000000536" target="_blank" rel="noopener noreferrer">American Heart Association (AHA) Stroke Rehabilitation Guidelines</a>.</p>
+        <p>Always consult your neurologist, occupational therapist, or speech-language pathologist before introducing new cognitive training protocols to your routine.</p>
+      </div>
     </div>
   </section>
 
@@ -207,6 +270,46 @@
         <span class="ic"></span>
         <span class="tap-label">TAP SOUNDS</span>
       </button>
+
+      <h2 class="settings-h">ACCESSIBILITY &amp; REHAB</h2>
+      <div class="card setting-card">
+        <div class="setting-head">
+          <span class="setting-label" id="hand-label">ANSWER BUTTONS</span>
+          <button class="help-dot" id="hand-help" aria-label="About the answer buttons">?</button>
+        </div>
+        <div class="select-wrap">
+          <select id="hand-select" aria-labelledby="hand-label">
+            <option value="both">SIDE BY SIDE</option>
+            <option value="left">ONE-HANDED · LEFT</option>
+            <option value="right">ONE-HANDED · RIGHT</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card">
+        <div class="setting-head">
+          <span class="setting-label" id="session-label">REHAB MODE</span>
+          <button class="help-dot" id="session-help" aria-label="About rehab mode">?</button>
+        </div>
+        <div class="select-wrap">
+          <select id="session-select" aria-labelledby="session-label">
+            <option value="off">OFF</option>
+            <option value="15">15 MINUTE SESSIONS</option>
+            <option value="20">20 MINUTE SESSIONS</option>
+          </select>
+        </div>
+      </div>
+      <div class="card setting-card">
+        <div class="setting-head">
+          <span class="setting-label" id="fatigue-label">FATIGUE DETECTION</span>
+          <button class="help-dot" id="fatigue-help" aria-label="About fatigue detection">?</button>
+        </div>
+        <div class="select-wrap">
+          <select id="fatigue-select" aria-labelledby="fatigue-label">
+            <option value="off">OFF</option>
+            <option value="on">ON — PAUSE ME WHEN I TIRE</option>
+          </select>
+        </div>
+      </div>
       <div class="spacer" style="flex:2"></div>
     </div>
   </section>
@@ -220,6 +323,7 @@
     </div>
     <button class="drawer-item" data-goto="home"><span class="ic"></span>TRAIN</button>
     <button class="drawer-item" data-goto="stats"><span class="ic"></span>STATISTICS</button>
+    <button class="drawer-item" data-goto="rehab"><span class="ic"></span>REHABILITATION</button>
     <button class="drawer-item" data-goto="help"><span class="ic"></span>HELP</button>
     <button class="drawer-item" data-goto="settings"><span class="ic"></span>SETTINGS</button>
   </nav>

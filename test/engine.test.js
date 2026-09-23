@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   TIMING, LETTER_COUNT, VISUAL_POSITIONS, MATCHES_PER_SENSE,
   makeSequence, makeRound, isMatchAt, scoreRound, nextN, flashAlpha, trialsFor,
+  invNorm, dPrime, roundDPrime, roundAccuracy, fatigueCheck, spread,
 } from '../js/engine.js';
 
 /* deterministic rng so a failure is reproducible */
@@ -114,4 +115,52 @@ test('the flash ramp hits the shape measured off the video', () => {
   assert.equal(flashAlpha(2000), 0, 'back to teal after 2 s');
   assert.equal(flashAlpha(2999), 0);
   assert.ok(TIMING.flashIn + TIMING.flashHold + TIMING.flashOut < TIMING.trial);
+});
+
+test('inverse normal matches known quantiles', () => {
+  assert.equal(invNorm(0.5), 0);
+  assert.ok(Math.abs(invNorm(0.975) - 1.959964) < 1e-5);
+  assert.ok(Math.abs(invNorm(0.01) + 2.326348) < 1e-5);
+  assert.ok(Math.abs(invNorm(0.8413447) - 1) < 1e-5);
+});
+
+test('d-prime rewards telling matches apart, not pressing more', () => {
+  // perfect round: 6 of 6 caught, no false presses, out of 21 trials
+  const perfect = dPrime(6, 0, 0, 21);
+  // pressing on every trial catches every match but tells nothing apart
+  const mash = dPrime(6, 0, 15, 21);
+  // never pressing
+  const idle = dPrime(0, 6, 0, 21);
+  assert.ok(perfect > 2.5, `perfect ${perfect}`);
+  assert.ok(Math.abs(mash) < 0.5, `mash ${mash}`);
+  assert.ok(Math.abs(idle) < 0.5, `idle ${idle}`);
+  assert.ok(Number.isFinite(perfect));
+});
+
+test('round d-prime and accuracy read a score sheet', () => {
+  const sheet = (vh, vm, vf, ah, am, af) => ({
+    visual: { hits: vh, misses: vm, false: vf, mistakes: vm + vf },
+    audio:  { hits: ah, misses: am, false: af, mistakes: am + af },
+  });
+  const s = sheet(6, 0, 0, 3, 3, 3);
+  const d = roundDPrime(s, 22);
+  assert.ok(d.visual > d.audio);
+  assert.ok(d.both < d.visual && d.both > d.audio);
+  assert.equal(roundAccuracy(s), 9 / 15);
+  assert.equal(roundAccuracy(sheet(0, 0, 0, 0, 0, 0)), 0);
+});
+
+test('fatigue needs two sharp drops in a row against the session so far', () => {
+  assert.equal(fatigueCheck([0.8, 0.3]), null, 'no baseline yet');
+  assert.equal(fatigueCheck([0.8, 0.3, 0.8]), null, 'one bad round is not fatigue');
+  assert.equal(fatigueCheck([0.8, 0.6, 0.55]), null, 'a gentle slide is not fatigue');
+  const hit = fatigueCheck([0.8, 0.85, 0.75, 0.4, 0.3]);
+  assert.ok(hit);
+  assert.ok(Math.abs(hit.baseline - 0.8) < 1e-9);
+  assert.deepEqual(hit.recent, [0.4, 0.3]);
+});
+
+test('spread is the sample standard deviation', () => {
+  assert.equal(spread([2]), 0);
+  assert.ok(Math.abs(spread([1, 2, 3, 4]) - 1.2909944) < 1e-6);
 });

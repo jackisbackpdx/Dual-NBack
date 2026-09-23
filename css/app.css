@@ -343,6 +343,31 @@ svg { display: block; fill: currentColor; }
 }
 .stats-empty { text-align: center; padding: 8% 10%; color: var(--text-dim); }
 
+/* d′ panel — the eye series solid teal, the ear series dashed purple */
+.dp-chart { width: 100%; height: auto; margin-top: 10px; overflow: visible; }
+.dp-chart .mark { cursor: pointer; }
+.dp-grid   { stroke: var(--card-line); stroke-width: .8; }
+.dp-chance { stroke: var(--text-dim); stroke-width: .8; stroke-dasharray: 3 3; }
+.dp-axis   { fill: var(--text-dim); font-size: 10px; letter-spacing: .06em; }
+.dp-eye, .dp-ear { fill: none; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.dp-eye { stroke: var(--teal); }
+.dp-ear { stroke: var(--flash); stroke-dasharray: 7 5; }
+circle.dp-eye { fill: var(--teal); stroke: none; }
+circle.dp-ear { fill: var(--flash); stroke: none; }
+.dp-legend {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 8px;
+  font-size: clamp(11px, 3.1vw, 14px); letter-spacing: .06em; color: var(--text);
+}
+.dp-legend > span { display: flex; align-items: center; gap: 6px; }
+.dp-legend .swatch { width: 16px; height: 3px; border-radius: 2px; }
+.dp-legend .swatch.eye { background: var(--teal); }
+.dp-legend .swatch.ear { background: repeating-linear-gradient(90deg, var(--flash) 0 5px, transparent 5px 8px); }
+.dp-ic { color: var(--teal); display: flex; }
+.dp-ic svg { height: 13px; width: auto; }
+:root[data-theme="dark"] .dp-ear { stroke: #a77fd0; }
+:root[data-theme="dark"] circle.dp-ear { fill: #a77fd0; }
+:root[data-theme="dark"] .dp-legend .swatch.ear { background: repeating-linear-gradient(90deg, #a77fd0 0 5px, transparent 5px 8px); }
+
 /* ── help ────────────────────────────────────────────────── */
 .help-body { overflow-y: auto; padding: 0 5% calc(8% + var(--safe-b)); -webkit-overflow-scrolling: touch; }
 /* A scrolling column: nothing in it should be squeezed to fit. Without this a
@@ -423,8 +448,58 @@ svg { display: block; fill: currentColor; }
 .legend-list .ic { color: var(--teal); flex: 0 0 auto; width: 16%; max-width: 64px; }
 .legend-list .ic svg { width: 100%; height: auto; }
 
+/* ── rehabilitation ──────────────────────────────────────── */
+.rehab-body a { color: var(--teal); text-decoration: underline; text-underline-offset: 2px; }
+.rehab-body b { font-weight: 500; color: var(--text); }
+.rehab-list {
+  list-style: none; margin: 0 0 4%; padding: 0; display: grid; gap: 10px;
+  font-size: clamp(15px, 4.6vw, 21px); line-height: 1.5; color: var(--text-dim);
+}
+.rehab-list li {
+  padding: 3.5% 4.5%; background: var(--surface); border: 1px solid var(--card-line);
+  border-left: 3px solid var(--teal); border-radius: 6px;
+}
+.rehab-note {
+  padding: 4% 5% 1%; background: var(--surface); border: 1px solid var(--card-line);
+  border-left: 3px solid var(--red); border-radius: 6px;
+}
+
+/* Rehab mode's status line, pinned under the app bar so the layout below it
+   keeps the proportions measured off the recording. */
+.home-body, .results-body { position: relative; }
+.rehab-pill {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 2;
+  margin: 0; padding: 5px 14px; border-radius: 40px; white-space: nowrap;
+  background: var(--surface); border: 1px solid var(--card-line);
+  color: var(--teal); font-size: clamp(11px, 3.2vw, 14px); letter-spacing: .08em;
+  font-variant-numeric: tabular-nums;
+}
+.play-btn.resting { color: var(--text-dim); cursor: default; flex-direction: column; gap: 2px; }
+.play-btn.resting:active { transform: none; }
+.rest-count { font-size: clamp(18px, 5.6vw, 30px); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.rest-label { font-size: clamp(9px, 2.6vw, 12px); letter-spacing: .14em; }
+
+/* the fatigue break */
+.break-body { padding: 0 7% calc(4% + var(--safe-b)); text-align: center; overflow-y: auto; }
+.break-body > :not(.spacer) { flex: 0 0 auto; }
+.break-body .help-h { margin-top: 0; }
+.break-text {
+  margin: 0 auto 4%; max-width: 36ch;
+  font-size: clamp(15px, 4.4vw, 20px); line-height: 1.5; color: var(--text-dim);
+}
+.break-text b { font-weight: 500; color: var(--text); }
+.break-clock {
+  margin: 4% 0 6%; color: var(--teal);
+  font-size: clamp(44px, 16vw, 84px); letter-spacing: .04em; font-variant-numeric: tabular-nums;
+}
+.break-done { margin: 0; }
+
 /* ── settings ────────────────────────────────────────────── */
-.settings-body { justify-content: center; gap: 10px; overflow-y: auto; }
+.settings-body { gap: 10px; overflow-y: auto; padding-top: 10px; padding-bottom: calc(10px + var(--safe-b)); }
+.settings-h {
+  flex: 0 0 auto; margin: 10px 0 0; text-align: center; font-weight: 300;
+  font-size: clamp(12px, 3.4vw, 15px); letter-spacing: .12em; color: var(--text-dim);
+}
 .setting-card { background: var(--surface); padding: 0; overflow: hidden; }
 .setting-head { position: relative; display: flex; align-items: center; justify-content: center; padding: 3% 12%; }
 .setting-label { font-size: clamp(17px, 5.2vw, 26px); letter-spacing: .06em; color: var(--text); }
@@ -596,6 +671,38 @@ svg { display: block; fill: currentColor; }
   }
   .bar { height: calc(44px + var(--safe-t)); }
   .bar-title { font-size: clamp(15px, 3.4vh, 20px); }
+}
+
+/* One-handed answer buttons: stacked on one side, under the thumb. The board
+   gives up a little height so the taller pair still fits. */
+:root[data-hand="left"] .answers, :root[data-hand="right"] .answers {
+  flex-direction: column; gap: 10px;
+  width: calc(var(--board) * .56);
+  height: clamp(104px, calc(var(--board) * .40), 250px);
+}
+:root[data-hand="left"] .answers  { align-self: flex-start; }
+:root[data-hand="right"] .answers { align-self: flex-end; }
+:root[data-hand="left"] .grid, :root[data-hand="right"] .grid,
+:root[data-hand="left"] .answers, :root[data-hand="right"] .answers { --board: min(100%, 44vh, 580px); }
+@supports (height: 1cqh) {
+  :root[data-hand="left"] .grid, :root[data-hand="right"] .grid,
+  :root[data-hand="left"] .answers, :root[data-hand="right"] .answers { --board: min(100%, 42cqh, 580px); }
+}
+:root[data-hand="left"] .answer svg, :root[data-hand="right"] .answer svg { height: 80%; }
+/* On its side, the pair stacks on the one flank instead of splitting across two. */
+@media (max-height: 540px) and (min-aspect-ratio: 1 / 1) {
+  :root[data-hand="left"] .answers, :root[data-hand="right"] .answers {
+    display: flex; flex: 0 1 22%; width: auto; height: min(90%, 320px);
+  }
+  :root[data-hand="left"] .answers  { order: -1; }
+  :root[data-hand="right"] .answers { order: 1; }
+  :root[data-hand="left"] .game-body .answer, :root[data-hand="right"] .game-body .answer {
+    flex: 1; height: auto; width: 100%;
+  }
+  :root[data-hand="left"] .game-body #btn-visual, :root[data-hand="right"] .game-body #btn-visual { order: 0; }
+  :root[data-hand="left"] .game-body .answer svg, :root[data-hand="right"] .game-body .answer svg {
+    width: auto; height: 62%;
+  }
 }
 
 /* Not enough height to lay a screen out generously: let it scroll. */
