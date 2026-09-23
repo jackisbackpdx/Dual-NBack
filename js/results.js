@@ -123,7 +123,7 @@ export function scoreLegendDialog() {
 export function shareText(score, n) {
   const v = score.visual;
   const a = score.audio;
-  return `Dual N-Back — N = ${n}\n` +
+  return `Dual N-Back, N = ${n}\n` +
          `eye ${v.hits} hit / ${v.misses} missed / ${v.false} false\n` +
          `ear ${a.hits} hit / ${a.misses} missed / ${a.false} false`;
 }
