@@ -8,7 +8,7 @@ const DEFAULTS = {
   settings: {
     firstN: 'always1', theme: 'system', tapSounds: true,
     goal: 'time',         // what ends a session: 'time' | 'rounds'
-    minutes: '15',        // time-based session length: '10' ... '60', in fives
+    minutes: '15',        // time-based session length: '10' ... '30', in fives
     roundGoal: '20',      // round-based session length: '5' | '10' | '15' | '20'
     rest: 'off',          // rehab rest between rounds: 'off' | '45' (seconds)
     fatigue: 'off',       // fatigue detection: 'off' | 'on'
@@ -52,6 +52,8 @@ class Store {
     };
     // Rehab mode used to carry its own 15 or 20 minute session; session length is
     // a setting of its own now, and rehab mode is just the rest between rounds.
+    // Sessions top out at 30 minutes; a longer saved length comes down to it.
+    if (Number(this.state.settings.minutes) > 30) { this.state.settings.minutes = '30'; this.save(); }
     const old = this.state.settings.session;
     if (old !== undefined) {
       if (old !== 'off') Object.assign(this.state.settings, { rest: '45', goal: 'time', minutes: old });

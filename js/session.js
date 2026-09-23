@@ -1,6 +1,6 @@
 /* The training session, and the ring that shows it.
  *
- * A session is either a length of time (10 to 60 minutes, 15 by default) or a
+ * A session is either a length of time (10 to 30 minutes, 15 by default) or a
  * number of rounds (5, 10, 15 or 20). It starts when the first round does, so
  * the clock never runs while the player is still getting settled. A round
  * started with time on the clock always plays to the end; the session closes
@@ -18,7 +18,7 @@ const clock = (ms) => {
 };
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 'S'}`;
 
-export const SESSION_MINUTES = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+export const SESSION_MINUTES = [10, 15, 20, 25, 30];
 export const SESSION_ROUNDS = [5, 10, 15, 20];
 
 export const session = {
